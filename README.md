@@ -1,4 +1,4 @@
-<p align="center"><a href="https://KurisaW.github.io"><img width="80%" alt="Hello, I'm KurisaW. I do open source!" src="./assets/gh-readme-header.png" /></a></p>
+<p align="center"><a href="https://KurisaW.github.io"><img width="80%" alt="Hello, I'm KurisaW. I do open source!" src="https://github.com/kurisaW/picbed/blob/main/image-20220610073740286.png" /></a></p>
 
 <br />
 
