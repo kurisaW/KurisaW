@@ -24,11 +24,13 @@ CSDN个人博客 [https://blog.csdn.net/qq_56914146?spm=1000.2115.3001.5343](htt
 
 ### My side projects
 
-1. Collecting and sharing awesome resources about technical communication (tech comm):
-
-<a href="https://github.com/KurisaW/github-readme-stats">
-  <img align="center" src="https://github-readme-stats.vercel.app/api/pin/?username=KurisaW&repo=github-readme-stats" />
+<a href="https://github.com/KurisaW/Project_hosting">
+  <img align="center" src="https://github-readme-stats.vercel.app/api/pin/?username=KurisaW&repo=Project_hosting" />
 </a>
 <a href="https://github.com/KurisaW/yifang_docs">
   <img align="center" src="https://github-readme-stats.vercel.app/api/pin/?username=KurisaW&repo=yifang_docs" />
 </a>
+
+### KurisaW's wakatime stats
+
+[![KurisaW's wakatime stats](https://github-readme-stats.vercel.app/api/wakatime?username=KurisaW)](https://github.com/anuraghazra/github-readme-stats)
