@@ -14,7 +14,7 @@
 ### Top Langs
 [![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=KurisaW&layout=compact)](https://github.com/KurisaW/github-readme-stats)
 
-### [My Blog](https://blog.csdn.net/qq_56914146?spm=1000.2115.3001.5343)
+### My Blog [tick here](https://blog.csdn.net/qq_56914146?spm=1000.2115.3001.5343)
 
 ![CSDN 数据](https://stats.justsong.cn/api/csdn?id=qq_56914146)
 
