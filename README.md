@@ -23,13 +23,13 @@
 ### `Top Langs`
 <img src="https://github-readme-stats-i66v.vercel.app/api/top-langs/?username=kurisaW&langs_count=6&card_width=500&bg_color=000000&text_color=0079fa&hide_border=true&layout=compact" alt="Most used languages" />
 
+### `Streaks graph`
+
+<img src="https://streak-stats.demolab.com?    user=kurisaW&theme=highcontrast&hide_border=true&border_radius=0&ring=2100FA&background=000000&fire=0079FA&currStreakNum=0079FA&dates=0079FA&sideNums=0079FA&currStreakLabel=0079FA&stroke=0079FA&sideLabels=0079FA" height="200" alt="streaks graph"  />
+
 ### `My Blog` [tick here](https://blog.csdn.net/qq_56914146?spm=1000.2115.3001.5343)
 
 ![CSDN 数据](https://stats.justsong.cn/api/csdn?id=qq_56914146&theme=dark)
-
-### My Streaks graph
-
-<img src="https://streak-stats.demolab.com?    user=kurisaW&theme=highcontrast&hide_border=true&border_radius=0&ring=2100FA&background=000000&fire=0079FA&currStreakNum=0079FA&dates=0079FA&sideNums=0079FA&currStreakLabel=0079FA&stroke=0079FA&sideLabels=0079FA" height="200" alt="streaks graph"  />
 
 ### `GitHub Activity Graph`
 
