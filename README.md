@@ -2,11 +2,11 @@
 
 <img  src="assert/borderseperator.gif">
 
-### `GitHub Activity Graph`
 
-<!-- GitHub Activity Graph -->
+<p align="center">
+<img src="assert/loficity.gif" alt="Lofi Nightlife city scene" />
+</p>
 
-[![KurisaW's Github Activity Graph](https://github-readme-activity-graph.cyclic.app/graph?username=kurisaW&custom_title=kurisW's%20GitHub%20Activity%20Graph&bg_color=000000&color=0079fa&line=2100fa&point=0079fa&area=true&hide_border=true)](https://github.com/ashutosh00710/github-readme-activity-graph)
 
 ### `Hi there 👋`
 
@@ -31,8 +31,8 @@
 
 <img src="https://streak-stats.demolab.com?    user=kurisaW&theme=highcontrast&hide_border=true&border_radius=0&ring=2100FA&background=000000&fire=0079FA&currStreakNum=0079FA&dates=0079FA&sideNums=0079FA&currStreakLabel=0079FA&stroke=0079FA&sideLabels=0079FA" height="200" alt="streaks graph"  />
 
-<p align="center">
-<img src="assert/loficity.gif" alt="Lofi Nightlife city scene" />
-</p>
+### `GitHub Activity Graph`
 
-<img  src="assert/borderseperator.gif">
+<!-- GitHub Activity Graph -->
+
+[![KurisaW's Github Activity Graph](https://github-readme-activity-graph.cyclic.app/graph?username=kurisaW&custom_title=kurisW's%20GitHub%20Activity%20Graph&bg_color=000000&color=0079fa&line=2100fa&point=0079fa&area=true&hide_border=true)](https://github.com/ashutosh00710/github-readme-activity-graph)
