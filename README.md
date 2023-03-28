@@ -36,10 +36,3 @@
 <!-- GitHub Activity Graph -->
 
 [![KurisaW's Github Activity Graph](https://github-readme-activity-graph.cyclic.app/graph?username=kurisaW&custom_title=kurisW's%20GitHub%20Activity%20Graph&bg_color=000000&color=0079fa&line=2100fa&point=0079fa&area=true&hide_border=true)](https://github.com/ashutosh00710/github-readme-activity-graph)
-
-### `Sponsor`
-
-If you like what I do, maybe consider buying me a coffee/tea 
-
-<a href="https://www.buymeacoffee.com/kurisaW" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-red.png" alt="Buy Me A Coffee" width="150" ></a>
-</div>
