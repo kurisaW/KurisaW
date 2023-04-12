@@ -9,7 +9,7 @@
 - 💬 Ask me about Linux、Embedded ...
 
 <details>
-  <summary>Github Graph</summary>
+  <summary>My Github Graph</summary>
 
 ### `KurisaW's GitHub stats`
 
