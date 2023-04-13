@@ -11,12 +11,18 @@
 <details>
   <summary>My Github Graph</summary>
 
+### `contributions in the last year`  
+  
+![](https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=kurisaW&theme=algolia)
+
+  
 ### `KurisaW's GitHub stats`
 
-<img src="https://github-readme-stats-i66v.vercel.app/api?username=kurisaW&show_icons=true&title_color=0079fa&text_color=0079fa&iconcolor=0079fa&hide_border=true&bg_color=000000&border_radius=0&count_private=true&include_all_commits=true" height="200" alt="stats graph"  />
-
+![kurisaW's GitHub stats](https://github-readme-stats.vercel.app/api?username=kurisaW&theme=algolia&show_icons=true)
+  
 ### `Top Langs`
-<img src="https://github-readme-stats-i66v.vercel.app/api/top-langs/?username=kurisaW&langs_count=6&card_width=500&bg_color=000000&text_color=0079fa&hide_border=true&layout=compact" alt="Most used languages" />
+
+[![kurisaW's GitHub stats](https://github-readme-stats.vercel.app/api/top-langs?username=kurisaW&hide=html,scss,stylus,blade,jupyter%20notebook,python,css,shell,batchfile,dockerfile,typescript&theme=algolia&show_icons=true)](https://github.com/saifurrahman1193)
 
 ### `Streaks graph`
 
@@ -26,8 +32,14 @@
 
 ![CSDN 数据](https://stats.justsong.cn/api/csdn?id=qq_56914146&theme=dark)
 
+### `kurisaW's wakatime stats`
+  
+[![kurisaW's wakatime stats](https://github-readme-stats.vercel.app/api/wakatime?username=kurisaW)](https://github.com/anuraghazra/github-readme-stats)
+  
 ### `GitHub Activity Graph`
 
 <!-- GitHub Activity Graph -->
 
-[![KurisaW's Github Activity Graph](https://github-readme-activity-graph.cyclic.app/graph?username=kurisaW&custom_title=kurisW's%20GitHub%20Activity%20Graph&bg_color=000000&color=0079fa&line=2100fa&point=0079fa&area=true&hide_border=true)](https://github.com/ashutosh00710/github-readme-activity-graph)
+[![KurisaW's Github Activity Graph](https://github-readme-activity-graph.cyclic.app/graph?username=kurisaW&custom_title=kurisW's%20GitHub%20Activity%20Graph&bg_color=000000&color=0079fa&line=2100fa&point=0079fa&area=true&hide_border=false)](https://github.com/ashutosh00710/github-readme-activity-graph)
+  
+<img alt="GitHub followers" src="https://img.shields.io/github/followers/kurisaW?style=social" />![](https://komarev.com/ghpvc/?username=kurisaW&color=lightgrey)
