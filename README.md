@@ -11,6 +11,8 @@
 <details>
   <summary>My Github Graph</summary>
 
+![github contribution grid snake animation](https://github.com/kurisaW/KurisaW/blob/main/assert/github-user-contribution.svg#gh-dark-mode-only)
+  
 ### `contributions in the last year`  
   
 ![](https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=kurisaW&theme=algolia)
