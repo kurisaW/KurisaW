@@ -33,10 +33,6 @@
 ### `My Blog` [tick here](https://blog.csdn.net/qq_56914146?spm=1000.2115.3001.5343)
 
 ![CSDN 数据](https://stats.justsong.cn/api/csdn?id=qq_56914146&theme=dark)
-
-### `kurisaW's wakatime stats`
-  
-[![kurisaW's wakatime stats](https://github-readme-stats.vercel.app/api/wakatime?username=kurisaW)](https://github.com/anuraghazra/github-readme-stats)
   
 ### `GitHub Activity Graph`
 
