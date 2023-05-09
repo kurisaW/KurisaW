@@ -17,6 +17,9 @@
   
 ![](https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=kurisaW&theme=algolia)
 
+### `Github Daily Contribution`
+
+![kurisaW's daily contribution](https://repobeats.axiom.co/api/embed/eeb01331d4f53bb974e2472cc42eb830dc3e1880.svg "Repobeats analytics image")
   
 ### `KurisaW's GitHub stats`
 
@@ -33,7 +36,7 @@
 ### `My Blog` [tick here](https://blog.csdn.net/qq_56914146?spm=1000.2115.3001.5343)
 
 ![CSDN 数据](https://stats.justsong.cn/api/csdn?id=qq_56914146&theme=dark)
-  
+
 ### `GitHub Activity Graph`
 
 <!-- GitHub Activity Graph -->
