@@ -12,21 +12,23 @@
 
 <details>
   <summary>My Github Graph</summary>
+  <!-- Snake Code Contribution Map 贪吃蛇代码贡献图 -->
+  <img src="https://github.com/kurisaW/KurisaW/profile-snake-contrib/github-contribution-grid-snake-dark.svg" />
 
-![github contribution grid snake animation](https://github.com/kurisaW/KurisaW/blob/main/assert/github-user-contribution.svg#gh-dark-mode-only)
-  
+
+
 ### `contributions in the last year`  
-  
+
 ![](https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=kurisaW&theme=algolia)
 
 ### `Github Daily Contribution`
 
 ![kurisaW's daily contribution](https://repobeats.axiom.co/api/embed/eeb01331d4f53bb974e2472cc42eb830dc3e1880.svg "Repobeats analytics image")
-  
+
 ### `KurisaW's GitHub stats`
 
 ![kurisaW's GitHub stats](https://github-readme-stats.vercel.app/api?username=kurisaW&theme=algolia&show_icons=true)
-  
+
 ### `Top Langs`
 
 [![kurisaW's GitHub stats](https://github-readme-stats.vercel.app/api/top-langs?username=kurisaW&hide=html,scss,stylus,blade,jupyter%20notebook,python,css,shell,batchfile,dockerfile,typescript&theme=algolia&show_icons=true)](https://github.com/saifurrahman1193)
@@ -44,5 +46,5 @@
 <!-- GitHub Activity Graph -->
 
 [![KurisaW's Github Activity Graph](https://github-readme-activity-graph.cyclic.app/graph?username=kurisaW&custom_title=kurisW's%20GitHub%20Activity%20Graph&bg_color=000000&color=0079fa&line=2100fa&point=0079fa&area=true&hide_border=false)](https://github.com/ashutosh00710/github-readme-activity-graph)
-  
+
 <img alt="GitHub followers" src="https://img.shields.io/github/followers/kurisaW?style=social" />![](https://komarev.com/ghpvc/?username=kurisaW&color=lightgrey)
