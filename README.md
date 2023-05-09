@@ -2,8 +2,6 @@
 
 ### `Hi there 👋`
 
-
-
 <p>&emsp;&emsp;🔭 Now I am a junior student ...</p>
 <p>&emsp;&emsp;🌱 I’m currently learning RT-Thread、linux、ROS ...</p>
 <p>&emsp;&emsp;👯 I’m looking to collaborate on Embedded or neural network ...</p>
@@ -15,13 +13,11 @@
   <!-- Snake Code Contribution Map 贪吃蛇代码贡献图 -->
   <img src="https://github.com/kurisaW/KurisaW/profile-snake-contrib/github-contribution-grid-snake-dark.svg" />
 
-
-
 ### `contributions in the last year`  
 
 ![](https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=kurisaW&theme=algolia)
 
-### `Github Daily Contribution`
+### `kurisaW's daily contribution`
 
 ![kurisaW's daily contribution](https://repobeats.axiom.co/api/embed/eeb01331d4f53bb974e2472cc42eb830dc3e1880.svg "Repobeats analytics image")
 
