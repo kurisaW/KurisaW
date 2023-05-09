@@ -2,11 +2,13 @@
 
 ### `Hi there 👋`
 
-- 🔭 Now I am a junior student ...
-- 🌱 I’m currently learning RT-Thread、linux、ROS ...
-- 👯 I’m looking to collaborate on Embedded or neural network ...
-- 🤔 I'm looking forward to sharing my experience and learning to help some beginners get through the rookie phase faster ...
-- 💬 Ask me about Linux、Embedded ...
+
+
+<p>&emsp;&emsp;🔭 Now I am a junior student ...</p>
+<p>&emsp;&emsp;🌱 I’m currently learning RT-Thread、linux、ROS ...</p>
+<p>&emsp;&emsp;👯 I’m looking to collaborate on Embedded or neural network ...</p>
+<p>&emsp;&emsp;🤔 I'm looking forward to sharing my experience and learning to help some beginners get through the rookie phase faster ...</p>
+<p>&emsp;&emsp;💬 Ask me about Linux、Embedded ...</p>
 
 <details>
   <summary>My Github Graph</summary>
