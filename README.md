@@ -11,7 +11,7 @@
 <details>
   <summary>My Github Graph</summary>
   <!-- Snake Code Contribution Map 贪吃蛇代码贡献图 -->
-  <img src="https://github.com/kurisaW/KurisaW/profile-snake-contrib/github-contribution-grid-snake-dark.svg" />
+  <img src="https://github.com/kurisaW/KurisaW/blob/main/profile-snake-contrib/github-contribution-grid-snake-dark.svg" />
 
 ### `contributions in the last year`  
 
