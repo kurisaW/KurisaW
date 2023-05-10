@@ -1,5 +1,8 @@
 <img src="https://readme-typing-svg.demolab.com?font=Operator+Mono&size=37&duration=2800&pause=2000&color=176EFFE6&center=true&vCenter=true&width=940&height=50&lines=Hey%2C+I'm+kurisaW+Welcome+to+my+Profile!" align="middle" alt="Hey, I'm kurisaW Welcome to my Profile! animated typed out">
 
+  <!-- Snake Code Contribution Map 贪吃蛇代码贡献图 -->
+  <img src="https://github.com/kurisaW/KurisaW/blob/main/profile-snake-contrib/github-contribution-grid-snake.svg" />
+
 ### `Hi there 👋`
 
 <p>&emsp;&emsp;🔭 Now I am a junior student ...</p>
@@ -10,8 +13,6 @@
 
 <details>
   <summary>My Github Graph</summary>
-  <!-- Snake Code Contribution Map 贪吃蛇代码贡献图 -->
-  <img src="https://github.com/kurisaW/KurisaW/blob/main/profile-snake-contrib/github-contribution-grid-snake-dark.svg" />
 
 ### `contributions in the last year`  
 
