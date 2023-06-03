@@ -42,4 +42,4 @@
 
 [![kurisaW's github activity graph](https://github-readme-activity-graph.vercel.app/graph?username=kurisaW&bg_color=000000&color=0079fa&line=2100fa&point=0079fa&area=true&hide_border=true)](https://github.com/ashutosh00710/github-readme-activity-graph)
 
--<img alt="GitHub followers" src="https://img.shields.io/github/followers/kurisaW?style=social" />![](https://komarev.com/ghpvc/?username=kurisaW&color=lightgrey)
+<img alt="GitHub followers" src="https://img.shields.io/github/followers/kurisaW?style=social" />![](https://komarev.com/ghpvc/?username=kurisaW&color=lightgrey)
