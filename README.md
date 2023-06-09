@@ -11,18 +11,17 @@
 <p>&emsp;&emsp;🤔 I'm looking forward to sharing my experience and learning to help some beginners get through the rookie phase faster ...</p>
 <p>&emsp;&emsp;💬 Ask me about Linux、Embedded ...</p>
 
-### `contributions in the last year`  
-
-![](https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=kurisaW&theme=algolia)
-
-
-<details>
-  <summary>My Github Graph</summary>
-
 ### `kurisaW's daily contribution`
 
 ![kurisaW's daily contribution](https://repobeats.axiom.co/api/embed/eeb01331d4f53bb974e2472cc42eb830dc3e1880.svg "Repobeats analytics image")
 
+<details>
+  <summary>My Github Graph</summary>
+
+### `contributions in the last year`  
+
+![](https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=kurisaW&theme=algolia)
+  
 ### `KurisaW's GitHub stats`
 
 ![kurisaW's GitHub stats](https://github-readme-stats.vercel.app/api?username=kurisaW&theme=algolia&show_icons=true)
