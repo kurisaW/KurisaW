@@ -11,12 +11,13 @@
 <p>&emsp;&emsp;🤔 I'm looking forward to sharing my experience and learning to help some beginners get through the rookie phase faster ...</p>
 <p>&emsp;&emsp;💬 Ask me about Linux、Embedded ...</p>
 
-<details>
-  <summary>My Github Graph</summary>
-
 ### `contributions in the last year`  
 
 ![](https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=kurisaW&theme=algolia)
+
+
+<details>
+  <summary>My Github Graph</summary>
 
 ### `kurisaW's daily contribution`
 
