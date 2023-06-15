@@ -13,9 +13,9 @@
 
 ### `Participating open source repository`
 
-[![RT-Thread](https://github-readme-stats.vercel.app/api/pin/?username=RT-Thread&repo=rt-thread&show_owner=true)](https://github.com/RT-Thread/rt-thread)[![RTduino](https://github-readme-stats.vercel.app/api/pin/?username=RTduino&repo=RTduino&show_owner=true)](https://github.com/RTduino/RTduino)
+[![RT-Thread](https://github-readme-stats.vercel.app/api/pin/?username=RT-Thread&repo=rt-thread&theme=algolia&show_owner=true)](https://github.com/RT-Thread/rt-thread)[![RTduino](https://github-readme-stats.vercel.app/api/pin/?username=RTduino&repo=RTduino&theme=algolia&show_owner=true)](https://github.com/RTduino/RTduino)
 
-[![connectedhomeip](https://github-readme-stats.vercel.app/api/pin/?username=project-chip&repo=connectedhomeip&show_owner=true)](https://github.com/project-chip/connectedhomeip)
+[![connectedhomeip](https://github-readme-stats.vercel.app/api/pin/?username=project-chip&repo=connectedhomeip&theme=algolia&show_owner=true)](https://github.com/project-chip/connectedhomeip)
 
 ### `kurisaW's daily contribution`
 
