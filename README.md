@@ -11,6 +11,14 @@
 <p>&emsp;&emsp;🤔 I'm looking forward to sharing my experience and learning to help some beginners get through the rookie phase faster ...</p>
 <p>&emsp;&emsp;💬 Ask me about Linux、Embedded ...</p>
 
+### `Participating open source repository`
+
+[![RT-Thread](https://github-readme-stats.vercel.app/api/pin/?username=RT-Thread&repo=rt-thread&show_owner=true)](https://github.com/RT-Thread/rt-thread)
+
+[![RTduino](https://github-readme-stats.vercel.app/api/pin/?username=RTduino&repo=RTduino&show_owner=true)](https://github.com/RTduino/RTduino)
+
+[![connectedhomeip](https://github-readme-stats.vercel.app/api/pin/?username=project-chip&repo=connectedhomeip&show_owner=true)](https://github.com/project-chip/connectedhomeip)
+
 ### `kurisaW's daily contribution`
 
 ![kurisaW's daily contribution](https://repobeats.axiom.co/api/embed/eeb01331d4f53bb974e2472cc42eb830dc3e1880.svg "Repobeats analytics image")
