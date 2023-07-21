@@ -21,7 +21,7 @@
 
 ### `Leading open source project`
 
-[![EC_Project](https://github-readme-stats.vercel.app/api/pin/?username=KurisaW-Collaborative&repo=EC_Project&theme=algolia&show_owner=true)](https://github.com/KurisaW-Collaborative/EC_Project)
+[![EC_Project](https://github-readme-stats.vercel.app/api/pin/?username=KurisaW-Collaborative&repo=EC_Project&theme=algolia&show_owner=true)](https://github.com/KurisaW-Collaborative/EC_Project)[![ROS_Project](https://github-readme-stats.vercel.app/api/pin/?username=KurisaW-Collaborative&repo=ROS_Project&theme=algolia&show_owner=true)](https://github.com/KurisaW-Collaborative/ROS_Project)
 
 ### `kurisaW's daily contribution`
 
