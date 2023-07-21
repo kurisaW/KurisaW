@@ -19,6 +19,10 @@
 
 [![connectedhomeip](https://github-readme-stats.vercel.app/api/pin/?username=project-chip&repo=connectedhomeip&theme=algolia&show_owner=true)](https://github.com/project-chip/connectedhomeip)
 
+### `Leading open source project`
+
+[![EC_Project](https://github-readme-stats.vercel.app/api/pin/?username=KurisaW-Collaborative&repo=EC_Project&theme=algolia&show_owner=true)](https://github.com/KurisaW-Collaborative/EC_Project)[![ROS_Project](https://github-readme-stats.vercel.app/api/pin/?username=KurisaW-Collaborative&repo=ROS_Project&theme=algolia&show_owner=true)](https://github.com/KurisaW-Collaborative/ROS_Project)
+
 ### `kurisaW's daily contribution`
 
 ![kurisaW's daily contribution](https://repobeats.axiom.co/api/embed/eeb01331d4f53bb974e2472cc42eb830dc3e1880.svg "Repobeats analytics image")
