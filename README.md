@@ -31,6 +31,8 @@
 
 [![EC_Project](https://github-readme-stats.vercel.app/api/pin/?username=KurisaW-Collaborative&repo=EC_Project&theme=algolia&show_owner=true)](https://github.com/KurisaW-Collaborative/EC_Project)[![ROS_Project](https://github-readme-stats.vercel.app/api/pin/?username=KurisaW-Collaborative&repo=ROS_Project&theme=algolia&show_owner=true)](https://github.com/KurisaW-Collaborative/ROS_Project)
 
+[![Summer-of-Open-Source](https://github-readme-stats.vercel.app/api/pin/?username=kurisaW&repo=Summer-of-Open-Source&theme=algolia&show_owner=true)](https://github.com/kurisaW/Summer-of-Open-Source)
+
 </div>
 
 ### `kurisaW's daily contribution`
