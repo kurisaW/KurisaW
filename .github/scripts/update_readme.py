@@ -7,9 +7,16 @@ import base64
 github_username = 'kurisaW'
 github_repo = 'kurisaW.github.io'
 
+# 从GitHub Secrets中获取Token
+github_token = os.environ.get('GH_TOKEN')
+
 # 获取博客目录的内容
 github_url = f'https://api.github.com/repos/{github_username}/{github_repo}/contents/content/post'
-response = requests.get(github_url)
+headers = {
+    'Authorization': f'token {github_token}',
+    'Accept': 'application/vnd.github.v3+json'
+}
+response = requests.get(github_url, headers=headers)
 response.raise_for_status()
 content = response.json()
 
@@ -19,7 +26,7 @@ for item in content:
     if item['type'] == 'dir':
         dir_name = item['name']
         index_url = f'https://api.github.com/repos/{github_username}/{github_repo}/contents/content/post/{dir_name}/index.md'
-        response = requests.get(index_url)
+        response = requests.get(index_url, headers=headers)
         response.raise_for_status()
         index_content = response.json()
         if 'content' in index_content:
