@@ -56,3 +56,4 @@ with open(readme_path, 'r', encoding='utf-8') as file:
 
 with open(readme_path, 'w', encoding='utf-8') as file:
     file.write(updated_readme)
+
