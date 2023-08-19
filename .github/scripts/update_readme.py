@@ -1,6 +1,7 @@
 import os
 import re
 import requests
+import base64
 
 # 替换为你的GitHub用户名和仓库名
 github_username = 'kurisaW'
