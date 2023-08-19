@@ -11,7 +11,7 @@ github_repo = 'kurisaW.github.io'
 github_token = os.environ.get('GH_TOKEN')
 
 # 获取博客目录的内容
-github_url = f'https://api.github.com/{github_username}/{github_repo}/tree/master/contents/content/post'
+github_url = f'https://api.github.com/repos/{github_username}/{github_repo}/contents/content/post'
 headers = {
     'Authorization': f'token {github_token}',
     'Accept': 'application/vnd.github.v3+json'
