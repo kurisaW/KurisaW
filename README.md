@@ -1,6 +1,33 @@
 <img src="https://readme-typing-svg.demolab.com?font=Operator+Mono&size=37&duration=2800&pause=2000&color=176EFFE6&center=true&vCenter=true&width=940&height=50&lines=Hey%2C+I'm+kurisaW+Welcome+to+my+Profile!" align="middle" alt="Hey, I'm kurisaW Welcome to my Profile! animated typed out">
 
 <div align="center">
+
+   <a href="https://github.com/kurisaW">
+      <img src="https://img.shields.io/badge/GitHub-%40kurisaw-181717?style=flat-square&logo=github" 
+      alt="@kurisaw" />
+   </a>
+   <a href="https://kurisaw.netlify.app/">
+      <img src="https://img.shields.io/badge/website-kurisaw.eu.org-brightgreen?style=flat-square"
+      alt="kurisaw.com" />
+   </a>
+   <a href="mailto:yifang.wangyq@foxmail.com">
+      <img src="https://img.shields.io/badge/Email-yifang.wangyq@foxmail.com-blue?style=flat-square&logo=gmail" 
+      alt="yifang.wangyq@foxmail.com"/>
+   </a>
+   <a href="https://github.com/kurisaW/kurisaW/actions/workflows/snake.yml">
+     <img src="https://github.com/kurisaW/kurisaW/actions/workflows/snake.yml/badge.svg" 
+     alt="Snake Contrib">  
+   </a>
+      <a href="https://github.com/kurisaW/kurisaW/actions/workflows/contrib.yml">
+     <img src="https://github.com/kurisaW/kurisaW/actions/workflows/contrib.yml/badge.svg" 
+     alt="3D Contrib">  
+   </a>
+ 
+  <img alt="GitHub followers" src="https://img.shields.io/github/followers/kurisaW?style=social" />![](https://komarev.com/ghpvc/?username=kurisaW&color=lightgrey)
+
+</div>
+
+<div align="center">
   <!-- Snake Code Contribution Map 贪吃蛇代码贡献图 -->
   <img src="https://github.com/kurisaW/KurisaW/blob/main/profile-snake-contrib/github-contribution-grid-snake.svg" />
 </div>
@@ -13,7 +40,7 @@
   <p>&emsp;&emsp;🤔 I'm looking forward to sharing my experience and learning to help some beginners get through the rookie phase faster ...</p>
   <p>&emsp;&emsp;💬 Ask me about Linux、Embedded ...</p>
 
-### `Participating open source repository`
+### `🎟 Participating open source repository`
 
 <div align="center">
   
@@ -23,7 +50,7 @@
 
 </div>
 
-### `Leading open source project`
+### `🔦 Leading open source project`
 
 <div align="center">
 
@@ -33,7 +60,7 @@
 
 </div>
 
-### `kurisaW's daily contribution`
+### `📰 kurisaW's daily contribution`
 
 <div align="center">
 
@@ -44,7 +71,7 @@
 <details>
   <summary>My Github Graph</summary>
 
-### `KurisaW's GitHub stats`
+### `🔭 KurisaW's GitHub stats`
 
 <div align="center">
 
@@ -52,7 +79,7 @@
 
 </div>
 
-### `Streaks graph`
+### `📈 Streaks graph`
 
 <div align="center">
 
@@ -60,7 +87,7 @@
 
 </div>
 
-### `My Blog` [tick here](https://blog.csdn.net/qq_56914146?spm=1000.2115.3001.5343)
+### `📝 My Blog` [tick here](https://blog.csdn.net/qq_56914146?spm=1000.2115.3001.5343)
 
 <div align="center">
 
@@ -68,17 +95,11 @@
 
 </div>
 
-### `GitHub Activity Graph`
+### `📊 GitHub Activity Graph`
 
 <div align="center">
 
 [![kurisaW's github activity graph](https://github-readme-activity-graph.vercel.app/graph?username=kurisaW&bg_color=000000&color=0079fa&line=2100fa&point=0079fa&area=true&hide_border=true)](https://github.com/ashutosh00710/github-readme-activity-graph)
-
-</div>
-
-<div align="center">
-
-<img alt="GitHub followers" src="https://img.shields.io/github/followers/kurisaW?style=social" />![](https://komarev.com/ghpvc/?username=kurisaW&color=lightgrey)
 
 </div>
 
