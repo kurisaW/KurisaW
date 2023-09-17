@@ -48,6 +48,8 @@
 
 [![RTT-MATTER-Adaptation_Layer](https://github-readme-stats.vercel.app/api/pin/?username=kurisaW&repo=RTT-MATTER-Adaptation_Layer&theme=algolia&show_owner=true)](https://github.com/kurisaW/RTT-MATTER-Adaptation_Layer)
 
+[![Matter-SDK](https://github-readme-stats.vercel.app/api/pin/?username=kurisaW&repo=Matter-SDK&theme=algolia&show_owner=true)](https://github.com/kurisaW/Matter-SDK)
+
 </div>
 
 ### `🔦 Leading open source project`
