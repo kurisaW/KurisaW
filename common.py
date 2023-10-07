@@ -37,24 +37,31 @@ class EnvironmentHandler:
 	def reset_environment(self):
 		self.modified_env = os.environ.copy()
 
-	def find_and_set_python3(self):
-		path = self.modified_env['PATH'].split(";")
-		possible_python_path = [x for x in path if "Python3" in x and "Scripts" not in x]
+    def find_and_set_python3(self):
+        path = self.modified_env['PATH'].split(os.pathsep)
+        python_executable = "python3"  # 默认Linux上的Python可执行文件名
+        if platform.system() == "Windows":
+            possible_python_path = [x for x in path if "Python3" in x and "Scripts" not in x]
+            python_script_path = [x for x in path if "Python3" in x and "Scripts" in x]
+            python_executable = "py -3"  # Windows上的Python可执行文件名
+        else:
+            possible_python_path = [x for x in path if python_executable in x.lower()]
 
-		if len(possible_python_path) >= 1:
-			python_script_path = [x for x in path if "Python3" in x and "Scripts" in x]
-			path.insert(0, possible_python_path[0])
-			path.insert(0, python_script_path[0])
-			self.set_environment_variable('PATH', ";".join(path))
-			self.set_environment_variable('PYTHONHOME', ";".join(possible_python_path))
-			self.set_environment_variable('PYTHONPATH', ";".join(possible_python_path))
+        if len(possible_python_path) >= 1:
+            path.insert(0, possible_python_path[0])
+            if platform.system() == "Windows":
+                path.insert(0, python_script_path[0])
+                self.set_environment_variable('PYTHONHOME', ";".join(possible_python_path))
+                self.set_environment_variable('PYTHONPATH', ";".join(possible_python_path))
 
-			# Check that pip is installed
-			run_cmd('py -3 -m ensurepip', env=self.modified_env, capture_output=True)
+            self.set_environment_variable('PATH', os.pathsep.join(path))
 
-			return True
-		else:
-			return False
+            # 检查是否安装了pip
+            run_cmd(f'{python_executable} -m ensurepip', env=self.modified_env, capture_output=True)
+
+            return True
+        else:
+            return False
 
 	def install_python_dependencies(self, deps):
 		# Install dependencies
