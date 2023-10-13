@@ -1,6 +1,5 @@
 #include <rtthread.h>
-#include <rtdevice.h>
-#include <micro_ros_rtt.h>
+#include "microros_rtthread_net_transport.h"
 
 #include <rcl/rcl.h>
 #include <rcl/error_handling.h>
@@ -31,7 +30,7 @@ static rcl_allocator_t allocator;
 static rclc_support_t support;
 static rcl_node_t node;
 static rcl_timer_t timer;
-static rclc_executor_t executor;
+static rclc_executor_t execitor;
 
 int device_id;
 int seq_no;
@@ -42,6 +41,7 @@ void ping_timer_callback(rcl_timer_t * timer, int64_t last_call_time)
 	(void) last_call_time;
 
 	if (timer != NULL) {
+
 		seq_no = rand();
 		rt_sprintf(outcoming_ping.frame_id.data, "%d_%d", seq_no, device_id);
 		outcoming_ping.frame_id.size = strlen(outcoming_ping.frame_id.data);
@@ -54,7 +54,7 @@ void ping_timer_callback(rcl_timer_t * timer, int64_t last_call_time)
 
 		// Reset the pong count and publish the ping message
 		pong_count = 0;
-		RCSOFTCHECK(rcl_publish(&ping_publisher, (const void*)&outcoming_ping, NULL));
+		rcl_publish(&ping_publisher, (const void*)&outcoming_ping, NULL);
 		rt_kprintf("Ping send seq %s\n", outcoming_ping.frame_id.data);  
 	}
 }
@@ -66,7 +66,7 @@ void ping_subscription_callback(const void * msgin)
 	// Dont pong my own pings
 	if(strcmp(outcoming_ping.frame_id.data, msg->frame_id.data) != 0){
 		rt_kprintf("Ping received with seq %s. Answering.\n", msg->frame_id.data);
-		RCSOFTCHECK(rcl_publish(&pong_publisher, (const void*)msg, NULL));
+		rcl_publish(&pong_publisher, (const void*)msg, NULL);
 	}
 }
 
@@ -83,32 +83,27 @@ void pong_subscription_callback(const void * msgin)
 
 static void microros_ping_pong_thread_entry(void *parameter)
 {
-    while(1)
-    {
-        rt_thread_mdelay(100);
-        rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100));
-    }
+	while(1)
+	{
+		rt_thread_mdelay(100);
+		rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100));
+	}
 }
 
-
-static void microros_ping_pong(int argc, char* argv[])
+static void microros_ping_pong(int argc,char* argv[])
 {
-#if defined MICRO_ROS_USE_SERIAL
-    // Serial setup
-     set_microros_transports();
-#endif
+    if (3 > argc || 0 == atoi(argv[2]))
+    {
+        LOG_E("Expected arguments: IP Port\n");
+        return;
+    }
 
-#if defined MICRO_ROS_USE_UDP
-    // UDP setup
-     if(argc==2) {
-         set_microros_udp_transports(argv[1], 9999);
-     }
-     else {
-         set_microros_udp_transports("192.168.1.100", 9999);
-     }
-#endif
+    // Configure network transport
+    char * agent_address = argv[1];
+    uint16_t agent_port = (uint16_t)atoi(argv[2]);
+    set_microros_net_transport(agent_address, agent_port);
 
-    allocator = rcl_get_default_allocator();
+	rcl_allocator_t allocator = rcl_get_default_allocator();
 
 	// create init_options
 	RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
@@ -124,12 +119,13 @@ static void microros_ping_pong(int argc, char* argv[])
 
 	// Create a best effort ping subscriber
 	RCCHECK(rclc_subscription_init_best_effort(&ping_subscriber, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Header), "/microROS/ping"));
-	
+
 	// Create a best effort  pong subscriber
 	RCCHECK(rclc_subscription_init_best_effort(&pong_subscriber, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Header), "/microROS/pong"));
 
 
-	// Create a 2 seconds ping timer timer,
+	// Create a 3 seconds ping timer timer,
+	rcl_timer_t timer;
 	RCCHECK(rclc_timer_init_default(&timer, &support, RCL_MS_TO_NS(2000), ping_timer_callback));
 
 
@@ -141,6 +137,7 @@ static void microros_ping_pong(int argc, char* argv[])
 	RCCHECK(rclc_executor_add_subscription(&executor, &pong_subscriber, &incoming_pong, &pong_subscription_callback, ON_NEW_DATA));
 
 	// Create and allocate the pingpong messages
+
 	char outcoming_ping_buffer[STRING_BUFFER_LEN];
 	outcoming_ping.frame_id.data = outcoming_ping_buffer;
 	outcoming_ping.frame_id.capacity = STRING_BUFFER_LEN;
@@ -153,19 +150,16 @@ static void microros_ping_pong(int argc, char* argv[])
 	incoming_pong.frame_id.data = incoming_pong_buffer;
 	incoming_pong.frame_id.capacity = STRING_BUFFER_LEN;
 
-	device_id = rand();
-
 	rt_kprintf("[micro_ros] micro_ros init successful.\n");
-    rt_thread_t thread = rt_thread_create("ping_pong", microros_ping_pong_thread_entry, RT_NULL, 2048, 25, 10);
-    if(thread != RT_NULL)
-    {
-        rt_thread_startup(thread);
-        rt_kprintf("[micro_ros] New thread mr_pubint32\n");
-    }
-    else
-    {
-        rt_kprintf("[micro_ros] Failed to create thread mr_pubint32\n");
-    }
-
+	rt_thread_t thread = rt_thrad_create("ping_pong", microros_ping_pong_thread_entry, RT_NULL, 2048,25,10);
+	if(thread != RT_NULL)
+	{
+		rt_thread_start(thread);
+		rt_kprintf("[micro_ros] New thread mr_pubint32\n");
+	}
+	else
+	{
+		rt_kprintf("[micro_ros] Failed to create thread mr_pubint32\n");
+	}
 }
 MSH_CMD_EXPORT(microros_ping_pong, micro ros ping_pong example);
