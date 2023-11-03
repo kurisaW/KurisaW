@@ -1,2 +1,30 @@
-<provider class="org.eclipse.cdt.managedbuilder.language.settings.providers.GCCBuiltinSpecsDetector" console="false" env-hash="225649328132003174" id="ilg.gnuarmeclipse.managedbuild.cross.GCCBuiltinSpecsDetector" keep-relative-paths="false" name="CDT ARM Cross GCC Built-in Compiler Settings " parameter="${COMMAND} ${FLAGS} ${cross_toolchain_flags} -E -P -v -dD &quot;${INPUTS}&quot;" prefer-non-shared="true">
-			
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+  <name>project</name>
+  <comment />
+  <projects>
+	</projects>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.cdt.managedbuilder.core.genmakebuilder</name>
+      <triggers>clean,full,incremental,</triggers>
+      <arguments>
+			</arguments>
+    </buildCommand>
+    <buildCommand>
+      <name>org.eclipse.cdt.managedbuilder.core.ScannerConfigBuilder</name>
+      <triggers>full,incremental,</triggers>
+      <arguments>
+			</arguments>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.cdt.core.cnature</nature>
+    <nature>org.eclipse.cdt.core.ccnature</nature>
+    <nature>org.rt-thread.studio.rttnature</nature>
+    <nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
+    <nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
+  </natures>
+  <linkedResources>
+    </linkedResources>
+</projectDescription>
