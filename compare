@@ -1,0 +1,2 @@
+<provider class="org.eclipse.cdt.managedbuilder.language.settings.providers.GCCBuiltinSpecsDetector" console="false" env-hash="180439755183504998" id="ilg.gnuarmeclipse.managedbuild.cross.GCCBuiltinSpecsDetector" keep-relative-paths="false" name="CDT ARM Cross GCC Built-in Compiler Settings " parameter="${COMMAND} ${FLAGS} ${cross_toolchain_flags} -E -P -v -dD &quot;${INPUTS}&quot;" prefer-non-shared="true">
+			
