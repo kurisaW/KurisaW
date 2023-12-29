@@ -40,21 +40,11 @@
   <p>&emsp;&emsp;🤔 I'm looking forward to sharing my experience and learning to help some beginners get through the rookie phase faster ...</p>
   <p>&emsp;&emsp;💬 Ask me about Linux、Embedded ...</p>
 
-### `🎟 Participating open source repository`
+### `🎟 open source repository`
 
 <div align="center">
   
 [![RT-Thread](https://github-readme-stats.vercel.app/api/pin/?username=RT-Thread&repo=rt-thread&theme=algolia&show_owner=true)](https://github.com/RT-Thread/rt-thread)[![RTduino](https://github-readme-stats.vercel.app/api/pin/?username=RTduino&repo=RTduino&theme=algolia&show_owner=true)](https://github.com/RTduino/RTduino)[![userapps](https://github-readme-stats.vercel.app/api/pin/?username=RT-Thread&repo=userapps&theme=algolia&show_owner=true)](https://github.com/RTduino/RTduino)
-
-</div>
-
-### `🔦 Leading open source project`
-
-<div align="center">
-
-[![EC_Project](https://github-readme-stats.vercel.app/api/pin/?username=KurisaW-Collaborative&repo=EC_Project&theme=algolia&show_owner=true)](https://github.com/KurisaW-Collaborative/EC_Project)[![ROS_Project](https://github-readme-stats.vercel.app/api/pin/?username=KurisaW-Collaborative&repo=ROS_Project&theme=algolia&show_owner=true)](https://github.com/KurisaW-Collaborative/ROS_Project)
-
-</div>
 
 ### `📰 kurisaW's daily contribution`
 
