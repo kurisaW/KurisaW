@@ -1,458 +1,670 @@
-/***********************************************************************************************************************
- * Copyright [2020-2021] Renesas Electronics Corporation and/or its affiliates.  All Rights Reserved.
- *
- * This software and documentation are supplied by Renesas Electronics America Inc. and may only be used with products
- * of Renesas Electronics Corp. and its affiliates ("Renesas").  No other uses are authorized.  Renesas products are
- * sold pursuant to Renesas terms and conditions of sale.  Purchasers are solely responsible for the selection and use
- * of Renesas products and Renesas assumes no liability.  No license, express or implied, to any intellectual property
- * right is granted by Renesas. This software is protected under all applicable laws, including copyright laws. Renesas
- * reserves the right to change or discontinue this software and/or this documentation. THE SOFTWARE AND DOCUMENTATION
- * IS DELIVERED TO YOU "AS IS," AND RENESAS MAKES NO REPRESENTATIONS OR WARRANTIES, AND TO THE FULLEST EXTENT
- * PERMISSIBLE UNDER APPLICABLE LAW, DISCLAIMS ALL WARRANTIES, WHETHER EXPLICITLY OR IMPLICITLY, INCLUDING WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT, WITH RESPECT TO THE SOFTWARE OR
- * DOCUMENTATION.  RENESAS SHALL HAVE NO LIABILITY ARISING OUT OF ANY SECURITY VULNERABILITY OR BREACH.  TO THE MAXIMUM
- * EXTENT PERMITTED BY LAW, IN NO EVENT WILL RENESAS BE LIABLE TO YOU IN CONNECTION WITH THE SOFTWARE OR DOCUMENTATION
- * (OR ANY PERSON OR ENTITY CLAIMING RIGHTS DERIVED FROM YOU) FOR ANY LOSS, DAMAGES, OR CLAIMS WHATSOEVER, INCLUDING,
- * WITHOUT LIMITATION, ANY DIRECT, CONSEQUENTIAL, SPECIAL, INDIRECT, PUNITIVE, OR INCIDENTAL DAMAGES; ANY LOST PROFITS,
- * OTHER ECONOMIC DAMAGE, PROPERTY DAMAGE, OR PERSONAL INJURY; AND EVEN IF RENESAS HAS BEEN ADVISED OF THE POSSIBILITY
- * OF SUCH LOSS, DAMAGES, CLAIMS OR COSTS.
- **********************************************************************************************************************/
+#! armclang -mcpu=cortex-m4 --target=arm-arm-none-eabi -E -x c -I.
+#include "memory_regions.scat"
 
-/*******************************************************************************************************************//**
- * @addtogroup BSP_MCU
- * @{
- **********************************************************************************************************************/
+; This scatter-file places the vector table, application code, data, stacks and heap at suitable addresses in the memory map.
 
-/***********************************************************************************************************************
- * Includes   <System Includes> , "Project Includes"
- **********************************************************************************************************************/
-#include <string.h>
-#include "bsp_api.h"
+#define ROM_REGISTERS_START 0x400
 
-/***********************************************************************************************************************
- * Macro definitions
- **********************************************************************************************************************/
+#ifdef FLASH_BOOTLOADER_LENGTH
 
-/* Mask to select CP bits( 0xF00000 ) */
-#define CP_MASK                                       (0xFU << 20)
+#define BL_FLASH_IMAGE_START        (FLASH_APPLICATION_IMAGE_NUMBER == 1 ? FLASH_BOOTLOADER_LENGTH + FLASH_BOOTLOADER_HEADER_LENGTH : \
+                                    FLASH_BOOTLOADER_LENGTH + FLASH_BOOTLOADER_SCRATCH_LENGTH + FLASH_APPLICATION_S_LENGTH + FLASH_BOOTLOADER_HEADER_LENGTH)
+#define BL_FLASH_IMAGE_END          (BL_FLASH_IMAGE_START + FLASH_APPLICATION_S_LENGTH - FLASH_BOOTLOADER_HEADER_LENGTH)
+#define BL_FLASH_NS_START           (FLASH_APPLICATION_NS_LENGTH == 0 ? BL_FLASH_IMAGE_END : \
+                                    BL_FLASH_IMAGE_START - FLASH_BOOTLOADER_HEADER_LENGTH + FLASH_APPLICATION_S_LENGTH)
+#define BL_FLASH_NSC_START          (FLASH_APPLICATION_NS_LENGTH == 0 ? BL_FLASH_IMAGE_END : \
+                                    BL_FLASH_NS_START - FLASH_APPLICATION_NSC_LENGTH)
+#define BL_FLASH_NS_IMAGE_START     (FLASH_APPLICATION_NS_LENGTH == 0 ? BL_FLASH_IMAGE_END : \
+                                    BL_FLASH_NS_START + FLASH_BOOTLOADER_HEADER_LENGTH_2)
+#define BL_RAM_NS_START             (FLASH_APPLICATION_NS_LENGTH == 0 ? RAM_START + RAM_LENGTH : \
+                                    RAM_START + RAM_LENGTH - RAM_APPLICATION_NS_LENGTH)
+#define BL_RAM_NSC_START            (FLASH_APPLICATION_NS_LENGTH == 0 ? RAM_START + RAM_LENGTH : \
+                                    BL_RAM_NS_START - RAM_APPLICATION_NSC_LENGTH)
+#define BLN_FLASH_IMAGE_START       (BL_FLASH_NS_IMAGE_START)
+#define BLN_FLASH_IMAGE_END         (FLASH_APPLICATION_NS_LENGTH == 0 ? BL_FLASH_IMAGE_END : \
+                                    BL_FLASH_NS_IMAGE_START + FLASH_APPLICATION_NS_LENGTH - FLASH_BOOTLOADER_HEADER_LENGTH_2)
 
-/* Value to write to OAD register of MPU stack monitor to enable NMI when a stack overflow is detected. */
-#define BSP_STACK_POINTER_MONITOR_NMI_ON_DETECTION    (0xA500U)
+#define FLASH_ORIGIN                FLASH_START
+#define LIMITED_FLASH_LENGTH        FLASH_BOOTLOADER_LENGTH
 
-/* Key code for writing PRCR register. */
-#define BSP_PRV_PRCR_KEY                              (0xA500U)
-#define BSP_PRV_PRCR_PRC1_UNLOCK                      ((BSP_PRV_PRCR_KEY) | 0x2U)
-#define BSP_PRV_PRCR_LOCK                             ((BSP_PRV_PRCR_KEY) | 0x0U)
+#elif defined FLASH_IMAGE_START
 
-#if defined(__ICCARM__)
- #define BSP_PRV_STACK_LIMIT                          ((uint32_t) __section_begin(".stack"))
- #define BSP_PRV_STACK_TOP                            ((uint32_t) __section_end(".stack"))
-#elif defined(__ARMCC_VERSION)
- #define BSP_PRV_STACK_LIMIT                          ((uint32_t) &Image$$STACK$$ZI$$Base)
- #define BSP_PRV_STACK_TOP                            ((uint32_t) &Image$$STACK$$ZI$$Base + \
-                                                       (uint32_t) &Image$$STACK$$ZI$$Length)
-#elif defined(__GNUC__)
- #define BSP_PRV_STACK_LIMIT                          ((uint32_t) &__StackLimit)
- #define BSP_PRV_STACK_TOP                            ((uint32_t) &__StackTop)
+#define FLASH_ORIGIN                FLASH_IMAGE_START
+#ifdef FLASH_NS_START
+#define LIMITED_FLASH_LENGTH        FLASH_NS_START - FLASH_IMAGE_START
+#else
+#define LIMITED_FLASH_LENGTH        FLASH_IMAGE_END - FLASH_IMAGE_START
 #endif
 
-#define BSP_TZ_STACK_SEAL_VALUE                       (0xFEF5EDA5)
-
-/***********************************************************************************************************************
- * Typedef definitions
- **********************************************************************************************************************/
-
-/***********************************************************************************************************************
- * Exported global variables (to be accessed by other files)
- **********************************************************************************************************************/
-
-/** System Clock Frequency (Core Clock) */
-uint32_t SystemCoreClock BSP_SECTION_EARLY_INIT;
-
-#if defined(__ARMCC_VERSION)
-extern uint32_t Image$$BSS$$ZI$$Base;
-extern uint32_t Image$$BSS$$ZI$$Length;
-extern uint32_t Load$$DATA$$Base;
-extern uint32_t Image$$DATA$$Base;
-extern uint32_t Image$$DATA$$Length;
-extern uint32_t Image$$STACK$$ZI$$Base;
-extern uint32_t Image$$STACK$$ZI$$Length;
-#elif defined(__GNUC__)
-
-/* Generated by linker. */
-extern uint32_t __etext;
-extern uint32_t __data_start__;
-extern uint32_t __data_end__;
-extern uint32_t __bss_start__;
-extern uint32_t __bss_end__;
-extern uint32_t __StackLimit;
-extern uint32_t __StackTop;
-#elif defined(__ICCARM__)
- #pragma section=".bss"
- #pragma section=".data"
- #pragma section=".data_init"
- #pragma section=".stack"
-#endif
-
-/* Initialize static constructors */
-#if defined(__ARMCC_VERSION)
-extern void (* Image$$INIT_ARRAY$$Base[])(void);
-extern void (* Image$$INIT_ARRAY$$Limit[])(void);
-#elif defined(__GNUC__)
-
-extern void (* __init_array_start[])(void);
-
-extern void (* __init_array_end[])(void);
-#elif defined(__ICCARM__)
-extern void __call_ctors(void const *, void const *);
-
- #pragma section = "SHT$$PREINIT_ARRAY" const
- #pragma section = "SHT$$INIT_ARRAY" const
-#endif
-
-extern void * __Vectors[];
-
-extern void R_BSP_SecurityInit(void);
-
-/***********************************************************************************************************************
- * Private global variables and functions
- **********************************************************************************************************************/
-
-#if BSP_FEATURE_BSP_RESET_TRNG
-static void bsp_reset_trng_circuit(void);
-
-#endif
-
-#if defined(__ICCARM__)
-
-void R_BSP_WarmStart(bsp_warm_start_event_t event);
-
- #pragma weak R_BSP_WarmStart
-
-#elif defined(__GNUC__) || defined(__ARMCC_VERSION)
-
-void R_BSP_WarmStart(bsp_warm_start_event_t event) __attribute__((weak));
-
-#endif
-
-#if BSP_CFG_EARLY_INIT
-static void bsp_init_uninitialized_vars(void);
-
-#endif
-
-/*******************************************************************************************************************//**
- * Initialize the MCU and the runtime environment.
- **********************************************************************************************************************/
-void SystemInit (void)
-{
-#if __FPU_USED
-
-    /* Enable the FPU only when it is used.
-     * Code taken from Section 7.1, Cortex-M4 TRM (DDI0439C) */
-
-    /* Set bits 20-23 (CP10 and CP11) to enable FPU. */
-    SCB->CPACR = (uint32_t) CP_MASK;
-#endif
-
-#if BSP_TZ_SECURE_BUILD
-
-    /* Seal the main stack for secure projects. Reference:
-     * https://developer.arm.com/documentation/100720/0300
-     * https://developer.arm.com/support/arm-security-updates/armv8-m-stack-sealing */
-    uint32_t * p_main_stack_top = (uint32_t *) __Vectors[0];
-    *p_main_stack_top = BSP_TZ_STACK_SEAL_VALUE;
-#endif
-
-#if !BSP_TZ_NONSECURE_BUILD
-
-    /* VTOR is in undefined state out of RESET:
-     * https://developer.arm.com/documentation/100235/0004/the-cortex-m33-peripherals/system-control-block/system-control-block-registers-summary?lang=en.
-     * Set the Secure/Non-Secure VTOR to the vector table address based on the build. This is skipped for non-secure
-     * projects because SCB_NS->VTOR is set by the secure project before the non-secure project runs. */
-    SCB->VTOR = (uint32_t) &__Vectors;
-#endif
-
-#if !BSP_TZ_CFG_SKIP_INIT
- #if BSP_FEATURE_BSP_VBATT_HAS_VBTCR1_BPWSWSTP
-
-    /* Unlock VBTCR1 register. */
-    R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_PRC1_UNLOCK;
-
-    /* The VBTCR1.BPWSWSTP must be set after reset on MCUs that have VBTCR1.BPWSWSTP. Reference section 11.2.1
-     * "VBATT Control Register 1 (VBTCR1)" and Figure 11.2 "Setting flow of the VBTCR1.BPWSWSTP bit" in the RA4M1 manual
-     * R01UM0007EU0110. This must be done before bsp_clock_init because LOCOCR, LOCOUTCR, SOSCCR, and SOMCR cannot
-     * be accessed until VBTSR.VBTRVLD is set. */
-    R_SYSTEM->VBTCR1 = 1U;
-    FSP_HARDWARE_REGISTER_WAIT(R_SYSTEM->VBTSR_b.VBTRVLD, 1U);
-
-    /* Lock VBTCR1 register. */
-    R_SYSTEM->PRCR = (uint16_t) BSP_PRV_PRCR_LOCK;
- #endif
-#endif
-
-#if BSP_FEATURE_TFU_SUPPORTED
-    R_BSP_MODULE_START(FSP_IP_TFU, 0U);
-#endif
-
-#if BSP_CFG_EARLY_INIT
-
-    /* Initialize uninitialized BSP variables early for use in R_BSP_WarmStart. */
-    bsp_init_uninitialized_vars();
-#endif
-
-    /* Call pre clock initialization hook. */
-    R_BSP_WarmStart(BSP_WARM_START_RESET);
-
-#if BSP_TZ_CFG_SKIP_INIT
-
-    /* Initialize clock variables to be used with R_BSP_SoftwareDelay. */
-    bsp_clock_freq_var_init();
 #else
 
-    /* Configure system clocks. */
-    bsp_clock_init();
+#define FLASH_ORIGIN                FLASH_START
+#define LIMITED_FLASH_LENGTH        FLASH_LENGTH
 
- #if BSP_FEATURE_BSP_RESET_TRNG
-
-    /* To prevent an undesired current draw, this MCU requires a reset
-     * of the TRNG circuit after the clocks are initialized */
-
-    bsp_reset_trng_circuit();
- #endif
 #endif
 
-    /* Call post clock initialization hook. */
-    R_BSP_WarmStart(BSP_WARM_START_POST_CLOCK);
-
-#if BSP_FEATURE_BSP_HAS_SP_MON
-
-    /* Disable MSP monitoring  */
-    R_MPU_SPMON->SP[0].CTL = 0;
-
-    /* Setup NMI interrupt  */
-    R_MPU_SPMON->SP[0].OAD = BSP_STACK_POINTER_MONITOR_NMI_ON_DETECTION;
-
-    /* Setup start address  */
-    R_MPU_SPMON->SP[0].SA = BSP_PRV_STACK_LIMIT;
-
-    /* Setup end address  */
-    R_MPU_SPMON->SP[0].EA = BSP_PRV_STACK_TOP;
-
-    /* Set SPEEN bit to enable NMI on stack monitor exception. NMIER bits cannot be cleared after reset, so no need
-     * to read-modify-write. */
-    R_ICU->NMIER = R_ICU_NMIER_SPEEN_Msk;
-
-    /* Enable MSP monitoring  */
-    R_MPU_SPMON->SP[0].CTL = 1U;
+; If a flat project has defined RAM_NS_BUFFER_LENGTH, then emit IDAU symbols to allocate non-secure RAM.
+#if !defined(PROJECT_NONSECURE) && defined(RAM_NS_BUFFER_LENGTH)
+#define __RESERVE_NS_RAM (1)
+; Allocate required RAM and align to 32K boundary
+#define RAM_NS_BUFFER_START     ((RAM_START + RAM_LENGTH - RAM_NS_BUFFER_LENGTH) AND 0xFFFFFFE0)
+#else
+#define __RESERVE_NS_RAM (0)
 #endif
 
-#if BSP_FEATURE_TZ_HAS_TRUSTZONE
-
-    /* Use CM33 stack monitor. */
-    __set_MSPLIM(BSP_PRV_STACK_LIMIT);
+#ifndef FLASH_S_START
+#define FLASH_S_START      0
 #endif
 
-#if BSP_CFG_C_RUNTIME_INIT
-
-    /* Initialize C runtime environment. */
-    /* Zero out BSS */
- #if defined(__ARMCC_VERSION)
-    memset((uint8_t *) &Image$$BSS$$ZI$$Base, 0U, (uint32_t) &Image$$BSS$$ZI$$Length);
- #elif defined(__GNUC__)
-    memset(&__bss_start__, 0U, ((uint32_t) &__bss_end__ - (uint32_t) &__bss_start__));
- #elif defined(__ICCARM__)
-    memset((uint32_t *) __section_begin(".bss"), 0U, (uint32_t) __section_size(".bss"));
- #endif
-
-    /* Copy initialized RAM data from ROM to RAM. */
- #if defined(__ARMCC_VERSION)
-    memcpy((uint8_t *) &Image$$DATA$$Base, (uint8_t *) &Load$$DATA$$Base, (uint32_t) &Image$$DATA$$Length);
- #elif defined(__GNUC__)
-    memcpy(&__data_start__, &__etext, ((uint32_t) &__data_end__ - (uint32_t) &__data_start__));
- #elif defined(__ICCARM__)
-    memcpy((uint32_t *) __section_begin(".data"), (uint32_t *) __section_begin(".data_init"),
-           (uint32_t) __section_size(".data"));
-
-    /* Copy functions to be executed from RAM. */
-  #pragma section=".code_in_ram"
-  #pragma section=".code_in_ram_init"
-    memcpy((uint32_t *) __section_begin(".code_in_ram"),
-           (uint32_t *) __section_begin(".code_in_ram_init"),
-           (uint32_t) __section_size(".code_in_ram"));
-
-    /* Copy main thread TLS to RAM. */
-  #pragma section="__DLIB_PERTHREAD_init"
-  #pragma section="__DLIB_PERTHREAD"
-    memcpy((uint32_t *) __section_begin("__DLIB_PERTHREAD"), (uint32_t *) __section_begin("__DLIB_PERTHREAD_init"),
-           (uint32_t) __section_size("__DLIB_PERTHREAD_init"));
- #endif
-
-    /* Initialize static constructors */
- #if defined(__ARMCC_VERSION)
-    int32_t count = Image$$INIT_ARRAY$$Limit - Image$$INIT_ARRAY$$Base;
-    for (int32_t i = 0; i < count; i++)
-    {
-        void (* p_init_func)(void) =
-            (void (*)(void))((uint32_t) &Image$$INIT_ARRAY$$Base + (uint32_t) Image$$INIT_ARRAY$$Base[i]);
-        p_init_func();
-    }
-
- #elif defined(__GNUC__)
-    int32_t count = __init_array_end - __init_array_start;
-    for (int32_t i = 0; i < count; i++)
-    {
-        __init_array_start[i]();
-    }
-
- #elif defined(__ICCARM__)
-    void const * pibase = __section_begin("SHT$$PREINIT_ARRAY");
-    void const * ilimit = __section_end("SHT$$INIT_ARRAY");
-    __call_ctors(pibase, ilimit);
- #endif
-#endif                                 // BSP_CFG_C_RUNTIME_INIT
-
-    /* Initialize SystemCoreClock variable. */
-    SystemCoreClockUpdate();
-
-#if !BSP_CFG_PFS_PROTECT
- #if BSP_TZ_SECURE_BUILD
-    R_PMISC->PWPRS = 0;                              ///< Clear BOWI bit - writing to PFSWE bit enabled
-    R_PMISC->PWPRS = 1U << BSP_IO_PWPR_PFSWE_OFFSET; ///< Set PFSWE bit - writing to PFS register enabled
- #else
-    R_PMISC->PWPR = 0;                               ///< Clear BOWI bit - writing to PFSWE bit enabled
-    R_PMISC->PWPR = 1U << BSP_IO_PWPR_PFSWE_OFFSET;  ///< Set PFSWE bit - writing to PFS register enabled
- #endif
+#ifndef RAM_S_START
+#define RAM_S_START        RAM_START
 #endif
 
-#if FSP_PRIV_TZ_USE_SECURE_REGS
-
-    /* Ensure that the PMSAR registers are reset (Soft reset does not reset PMSAR). */
-    R_BSP_RegisterProtectDisable(BSP_REG_PROTECT_SAR);
-
-    for (uint32_t i = 0; i < 9; i++)
-    {
-        R_PMISC->PMSAR[i].PMSAR = UINT16_MAX;
-    }
-    R_BSP_RegisterProtectEnable(BSP_REG_PROTECT_SAR);
+#ifndef DATA_FLASH_S_START
+#define DATA_FLASH_S_START DATA_FLASH_START
 #endif
 
-#if BSP_TZ_SECURE_BUILD
+#if __RESERVE_NS_RAM
 
-    /* Initialize security features. */
-    R_BSP_SecurityInit();
+#ifndef RAM_NSC_START
+#define RAM_NSC_START       RAM_NS_BUFFER_START AND 0xFFFFE000
 #endif
 
-    /* Call Post C runtime initialization hook. */
-    R_BSP_WarmStart(BSP_WARM_START_POST_C);
+#ifndef RAM_NS_START
+#define RAM_NS_START        RAM_NS_BUFFER_START AND 0xFFFFE000
+#endif
 
-    /* Initialize ELC events that will be used to trigger NVIC interrupts. */
-    bsp_irq_cfg();
+#ifndef DATA_FLASH_NS_START
+#define DATA_FLASH_NS_START DATA_FLASH_START + DATA_FLASH_LENGTH
+#endif
 
-    /* Call any BSP specific code. No arguments are needed so NULL is sent. */
-    bsp_init(NULL);
-}
+#ifndef FLASH_NSC_START
+#define FLASH_NSC_START     FLASH_ORIGIN + LIMITED_FLASH_LENGTH
+#endif
 
-/*******************************************************************************************************************//**
- * This function is called at various points during the startup process.
- * This function is declared as a weak symbol higher up in this file because it is meant to be overridden by a user
- * implemented version. One of the main uses for this function is to call functional safety code during the startup
- * process. To use this function just copy this function into your own code and modify it to meet your needs.
- *
- * @param[in]  event    Where the code currently is in the start up process
- **********************************************************************************************************************/
-void R_BSP_WarmStart (bsp_warm_start_event_t event)
+#ifndef FLASH_NS_START
+#define FLASH_NS_START      FLASH_ORIGIN + LIMITED_FLASH_LENGTH
+#endif
+
+#else
+
+#ifndef RAM_NSC_START
+#ifdef PROJECT_SECURE
+#define RAM_NSC_START       +0 ALIGN 1024
+#else
+#define RAM_NSC_START       RAM_START + RAM_LENGTH
+#endif
+#endif
+
+#ifndef RAM_NS_START
+#ifdef PROJECT_SECURE
+#define RAM_NS_START        +0 ALIGN 8192
+#else
+#define RAM_NS_START        RAM_START + RAM_LENGTH
+#endif
+#endif
+
+#ifndef DATA_FLASH_NS_START
+#define DATA_FLASH_NS_START +0 ALIGN 1024
+#endif
+
+#ifndef FLASH_NSC_START
+#define FLASH_NSC_START     +0 ALIGN 1024
+#endif
+
+#ifndef FLASH_NS_START
+#define FLASH_NS_START      +0 ALIGN 32768
+#endif
+
+#endif
+
+#ifndef QSPI_FLASH_S_START
+#define QSPI_FLASH_S_START QSPI_FLASH_START
+#endif
+
+#ifndef QSPI_FLASH_NS_START
+#define QSPI_FLASH_NS_START +0
+#endif
+
+#ifndef OSPI_DEVICE_0_S_START
+#define OSPI_DEVICE_0_S_START OSPI_DEVICE_0_START
+#endif
+
+#ifndef OSPI_DEVICE_0_NS_START
+#define OSPI_DEVICE_0_NS_START +0
+#endif
+
+#ifndef OSPI_DEVICE_1_S_START
+#define OSPI_DEVICE_1_S_START OSPI_DEVICE_1_START
+#endif
+
+#ifndef OSPI_DEVICE_1_NS_START
+#define OSPI_DEVICE_1_NS_START +0
+#endif
+
+#ifndef SDRAM_S_START
+#define SDRAM_S_START SDRAM_START
+#endif
+
+#ifndef SDRAM_NS_START
+#define SDRAM_NS_START +0
+#endif
+
+#ifdef QSPI_FLASH_SIZE
+#define QSPI_FLASH_PRV_LENGTH QSPI_FLASH_SIZE
+#else
+#define QSPI_FLASH_PRV_LENGTH QSPI_FLASH_LENGTH
+#endif
+
+#ifdef OSPI_DEVICE_0_SIZE
+#define OSPI_DEVICE_0_PRV_LENGTH OSPI_DEVICE_0_SIZE
+#else
+#define OSPI_DEVICE_0_PRV_LENGTH OSPI_DEVICE_0_LENGTH
+#endif
+
+#ifdef OSPI_DEVICE_1_SIZE
+#define OSPI_DEVICE_1_PRV_LENGTH OSPI_DEVICE_1_SIZE
+#else
+#define OSPI_DEVICE_1_PRV_LENGTH OSPI_DEVICE_1_LENGTH
+#endif
+
+#define OPTION_SETTING_NS_OFFSET    0x80
+
+LOAD_REGION_FLASH FLASH_ORIGIN ALIGN 0x80 LIMITED_FLASH_LENGTH
 {
-    if (BSP_WARM_START_RESET == event)
-    {
-        /* C runtime environment has not been setup so you cannot use globals. System clocks are not setup. */
-    }
+  __tz_FLASH_S +0 EMPTY 0
+  {
+  }
 
-    if (BSP_WARM_START_POST_CLOCK == event)
-    {
-        /* C runtime environment has not been setup so you cannot use globals. Clocks have been initialized. */
-    }
-    else if (BSP_WARM_START_POST_C == event)
-    {
-        /* C runtime environment, system clocks, and pins are all setup. */
-    }
-    else
-    {
-        /* Do nothing */
-    }
-}
+  VECTORS +0 FIXED PADVALUE 0xFFFFFFFF   ; maximum of 256 exceptions (256*4 bytes == 0x400)
+  {
+    *(.fixed_vectors, +FIRST)
+    *(.application_vectors)
+  }
 
-/*******************************************************************************************************************//**
- * Disable TRNG circuit to prevent unnecessary current draw which may otherwise occur when the Crypto module
- * is not in use.
- **********************************************************************************************************************/
-#if BSP_FEATURE_BSP_RESET_TRNG
-static void bsp_reset_trng_circuit (void)
-{
-    volatile uint8_t read_port = 0U;
-    FSP_PARAMETER_NOT_USED(read_port); /// Prevent compiler 'unused' warning
+#if (OPTION_SETTING_LENGTH == 0) && (FLASH_ORIGIN == FLASH_START)
 
-    /* Release register protection for low power modes (per RA2A1 User's Manual (R01UH0888EJ0100) Figure 11.13 "Example
-     * of initial setting flow for an unused circuit") */
-    R_BSP_RegisterProtectDisable(BSP_REG_PROTECT_OM_LPC_BATT);
+  /* MCUs with the OPTION_SETTING region do not use the ROM registers at 0x400. */
 
-    /* Enable TRNG function (disable stop function) */
- #if BSP_FEATURE_BSP_HAS_SCE_ON_RA2
-    R_BSP_MODULE_START(FSP_IP_TRNG, 0); ///< TRNG Module Stop needs to be started/stopped for RA2 series.
- #elif BSP_FEATURE_BSP_HAS_SCE5
-    R_BSP_MODULE_START(FSP_IP_SCE, 0);  ///< TRNG Module Stop needs to be started/stopped for RA4 series.
- #else
-  #error "BSP_FEATURE_BSP_RESET_TRNG is defined but not handled."
- #endif
+  VECTORS_FILL +0 FIXED FILL 0xFFFFFFFF (0x400 - ImageLength(VECTORS))
+  {
+  }
 
-    /* Wait for at least 3 PCLKB cycles */
-    read_port = R_PFS->PORT[0].PIN[0].PmnPFS_b.PODR;
-    read_port = R_PFS->PORT[0].PIN[0].PmnPFS_b.PODR;
-    read_port = R_PFS->PORT[0].PIN[0].PmnPFS_b.PODR;
+  ROM_REGISTERS FLASH_START+0x400 FIXED PADVALUE 0xFFFFFFFF
+  {
+    bsp_rom_registers.o (.rom_registers)
+  }
 
-    /* Disable TRNG function */
- #if BSP_FEATURE_BSP_HAS_SCE_ON_RA2
-    R_BSP_MODULE_STOP(FSP_IP_TRNG, 0); ///< TRNG Module Stop needs to be started/stopped for RA2 series.
- #elif BSP_FEATURE_BSP_HAS_SCE5
-    R_BSP_MODULE_STOP(FSP_IP_SCE, 0);  ///< TRNG Module Stop needs to be started/stopped for RA4 series.
- #else
-  #error "BSP_FEATURE_BSP_RESET_TRNG is defined but not handled."
- #endif
-
-    /* Reapply register protection for low power modes (per RA2A1 User's Manual (R01UH0888EJ0100) Figure 11.13 "Example
-     * of initial setting flow for an unused circuit") */
-    R_BSP_RegisterProtectEnable(BSP_REG_PROTECT_OM_LPC_BATT);
-}
+  ROM_REGISTERS_FILL +0 FIXED FILL 0xFFFFFFFF (0x100 - ImageLength(ROM_REGISTERS))
+  {
+  }
 
 #endif
 
-#if BSP_CFG_EARLY_INIT
+  MCUBOOT_SCE9_KEY +0 FIXED
+  {
+    *(.mcuboot_sce9_key)
+  }
 
-/*******************************************************************************************************************//**
- * Initialize BSP variables not handled by C runtime startup.
- **********************************************************************************************************************/
-static void bsp_init_uninitialized_vars (void)
-{
-    g_protect_pfswe_counter = 0;
 
-    extern volatile uint16_t g_protect_counters[];
-    for (uint32_t i = 0; i < 4; i++)
-    {
-        g_protect_counters[i] = 0;
-    }
+  INIT_ARRAY +0 FIXED
+  {
+    *(.init_array)
+  }
 
-    extern bsp_grp_irq_cb_t g_bsp_group_irq_sources[];
-    for (uint32_t i = 0; i < 16; i++)
-    {
-        g_bsp_group_irq_sources[i] = 0;
-    }
+  USB_DESC_FS +0 FIXED
+  {
+    *(.usb_device_desc_fs*)
+    *(.usb_config_desc_fs*)
+    *(.usb_interface_desc_fs*)
+  }
 
- #if BSP_CFG_EARLY_INIT
+  RO_CODE_DATA +0 FIXED
+  {
+    *(.text*,.rodata*,.constdata*)
+    .ANY(+RO)
+  }
 
-    /* Set SystemCoreClock to MOCO */
-    SystemCoreClock = BSP_MOCO_HZ;
- #endif
-}
+  __tz_RAM_S RAM_S_START EMPTY 0
+  {
+  }
+
+  DTC_VECTOR_TABLE RAM_START UNINIT NOCOMPRESS RAM_LENGTH
+  {
+    ; If DTC is used, put the DTC vector table at the start of SRAM.
+    ; This avoids memory holes due to 1K alignment required by it.
+    *(.bss.fsp_dtc_vector_table)
+  }
+
+  DATA +0 NOCOMPRESS
+  {
+    ; Do not use *(.data*) because it will place data meant for .data_flash in this section.
+    *(.data.*)
+    *(.data)
+    *(.code_in_ram)
+
+#if !__RESERVE_NS_RAM
+    *(.ns_buffer*)
+#endif
+
+    .ANY(+RW)
+  }
+
+  BSS +0 NOCOMPRESS
+  {
+    *(+ZI)
+  }
+
+  NOINIT +0 UNINIT NOCOMPRESS
+  {
+    *(.bss.noinit)
+  }
+
+  ARM_LIB_HEAP +0 ALIGN 8 UNINIT NOCOMPRESS
+  {
+    *(.bss.heap)
+  }
+
+  ; ARM_LIB_STACK is not used in FSP, but it must be in the scatter file to avoid a linker error
+  ARM_LIB_STACK +0 ALIGN 8 UNINIT NOCOMPRESS EMPTY 0
+  {
+  }
+
+  STACK +0 ALIGN 8 UNINIT NOCOMPRESS
+  {
+    *(.bss.stack)
+    *(.bss.stack.thread)
+  }
+
+  /* This is the end of RAM used in the application. */
+  RAM_END +0 EMPTY 4
+  {
+  }
+
+  ; Support for OctaRAM
+  OSPI_DEVICE_0_NO_LOAD OSPI_DEVICE_0_START UNINIT NOCOMPRESS
+  {
+    *(.ospi_device_0_no_load*)
+  }
+
+  ; Support for OctaRAM
+  OSPI_DEVICE_1_NO_LOAD OSPI_DEVICE_1_START UNINIT NOCOMPRESS
+  {
+    *(.ospi_device_1_no_load*)
+  }
+
+  __tz_RAM_C RAM_NSC_START EMPTY 0
+  {
+  }
+
+  __tz_RAM_N RAM_NS_START EMPTY 0
+  {
+  }
+
+#ifdef FLASH_BOOTLOADER_LENGTH
+
+  __bl_FLASH_IMAGE_START BL_FLASH_IMAGE_START OVERLAY UNINIT 4
+  {
+    *(.bl_boundary.bl_flash_image_start)
+  }
+
+#if FLASH_APPLICATION_NS_LENGTH == 0
+
+  __bl_FLASH_IMAGE_END BL_FLASH_IMAGE_END OVERLAY UNINIT 4
+  {
+    *(.bl_boundary.bl_flash_image_end)
+  }
+
+#else
+
+  __bl_FLASH_NS_START BL_FLASH_NS_START OVERLAY UNINIT 4
+  {
+    *(.bl_boundary.bl_flash_ns_start)
+  }
+
+  __bl_FLASH_NSC_START BL_FLASH_NSC_START OVERLAY UNINIT 4
+  {
+    *(.bl_boundary.bl_flash_nsc_start)
+  }
+
+  __bl_FLASH_NS_IMAGE_START BL_FLASH_NS_IMAGE_START OVERLAY UNINIT 4
+  {
+    *(.bl_boundary.bl_flash_ns_image_start)
+  }
+
+  __bln_FLASH_IMAGE_START BLN_FLASH_IMAGE_START OVERLAY UNINIT 4
+  {
+    *(.bl_boundary.bln_flash_image_start)
+  }
+
+  __bln_FLASH_IMAGE_END BLN_FLASH_IMAGE_END OVERLAY UNINIT 4
+  {
+    *(.bl_boundary.bln_flash_image_end)
+  }
+
+  __bl_RAM_NS_START BL_RAM_NS_START OVERLAY UNINIT 4
+  {
+    *(.bl_boundary.bl_ram_ns_start)
+  }
+
+  __bl_RAM_NSC_START BL_RAM_NSC_START OVERLAY UNINIT 4
+  {
+    *(.bl_boundary.bl_ram_nsc_start)
+  }
 
 #endif
 
-/** @} (end addtogroup BSP_MCU) */
+#endif
+
+#if __RESERVE_NS_RAM
+  RAM_NS_BUFFER RAM_NS_BUFFER_START
+  {
+    *(.ns_buffer*)
+  }
+#endif
+
+  RAM_LIMIT RAM_START+RAM_LENGTH EMPTY 4
+  {
+  }
+}
+
+LOAD_REGION_NSC_FLASH FLASH_NSC_START
+{
+  __tz_FLASH_C FLASH_NSC_START EMPTY 0
+  {
+  }
+
+  EXEC_NSCR FLASH_NSC_START FIXED
+  {
+    *(Veneer$$CMSE)
+  }
+
+  __tz_FLASH_N FLASH_NS_START EMPTY 0
+  {
+  }
+}
+
+#if ID_CODE_LENGTH != 0
+LOAD_REGION_ID_CODE ID_CODE_START ID_CODE_LENGTH
+{
+  __tz_ID_CODE_S ID_CODE_START EMPTY 0
+  {
+  }
+
+  ID_CODE +0 FIXED
+  {
+    *(.id_code*)
+  }
+
+  __tz_ID_CODE_N +0 EMPTY 0
+  {
+  }
+}
+#else
+LOAD_REGION_ID_CODE ID_CODE_START 4
+{
+  __tz_ID_CODE_S ID_CODE_START EMPTY 0
+  {
+  }
+
+  __tz_ID_CODE_N +0 EMPTY 0
+  {
+  }
+}
+#endif
+
+#if OPTION_SETTING_LENGTH != 0
+LOAD_REGION_OPTION_SETTING OPTION_SETTING_START OPTION_SETTING_LENGTH
+{
+  __tz_OPTION_SETTING_S OPTION_SETTING_START EMPTY 0
+  {
+  }
+
+#ifndef PROJECT_NONSECURE
+  OFS0 OPTION_SETTING_START+0 FIXED
+  {
+    *(.option_setting_ofs0)
+  }
+
+  UNUSED_0 (ImageBase(OFS0)+ImageLength(OFS0)) FIXED FILL 0xFFFFFFFF (ImageBase(OFS0) + 0x10 - (ImageBase(OFS0)+ImageLength(OFS0)))
+  {
+
+  }
+
+  DUALSEL 0x0100A100+0x10 FIXED
+  {
+    *(.option_setting_dualsel)
+  }
+
+  UNUSED_1 (ImageBase(DUALSEL)+ImageLength(DUALSEL)) FIXED FILL 0xFFFFFFFF (ImageBase(OFS0) + 0x34 - (ImageBase(DUALSEL)+ImageLength(DUALSEL)))
+  {
+
+  }
+
+  SAS 0x0100A100+0x34 FIXED
+  {
+    *(.option_setting_sas)
+  }
+
+  UNUSED_2 (ImageBase(SAS)+ImageLength(SAS)) FIXED FILL 0xFFFFFFFF (ImageBase(OFS0) + 0x80 - (ImageBase(SAS)+ImageLength(SAS)))
+  {
+
+  }
+#else
+  OFS1 0x0100A100+0x80 FIXED
+  {
+    *(.option_setting_ofs1)
+  }
+
+  UNUSED_3 (ImageBase(OFS1)+ImageLength(OFS1)) FIXED FILL 0xFFFFFFFF (ImageBase(OFS1) + 0x10 - (ImageBase(OFS1)+ImageLength(OFS1)))
+  {
+
+  }
+
+  BANKSEL 0x0100A100+0x90 FIXED
+  {
+    *(.option_setting_banksel)
+  }
+
+  UNUSED_4 (ImageBase(BANKSEL)+ImageLength(BANKSEL)) FIXED FILL 0xFFFFFFFF (ImageBase(OFS1) + 0x40 - (ImageBase(BANKSEL)+ImageLength(BANKSEL)))
+  {
+
+  }
+
+  BPS 0x0100A100+0xC0 FIXED
+  {
+    *(.option_setting_bps0)
+    *(.option_setting_bps1)
+    *(.option_setting_bps2)
+  }
+
+  UNUSED_5 (ImageBase(BPS)+ImageLength(BPS)) FIXED FILL 0xFFFFFFFF (ImageBase(OFS1) + 0x60 - (ImageBase(BPS)+ImageLength(BPS)))
+  {
+
+  }
+
+  PBPS 0x0100A100+0xE0 FIXED
+  {
+    *(.option_setting_pbps0)
+    *(.option_setting_pbps1)
+    *(.option_setting_pbps2)
+  }
+
+  UNUSED_6 (ImageBase(PBPS)+ImageLength(PBPS)) FIXED FILL 0xFFFFFFFF (ImageBase(OFS1) + 0x80 - (ImageBase(PBPS)+ImageLength(PBPS)))
+  {
+
+  }
+#endif
+
+  __tz_OPTION_SETTING_N OPTION_SETTING_START + OPTION_SETTING_NS_OFFSET EMPTY 0
+  {
+  }
+}
+
+#if OPTION_SETTING_S_LENGTH != 0
+LOAD_REGION_OPTION_SETTING_S OPTION_SETTING_S_START OPTION_SETTING_S_LENGTH
+{
+  __tz_OPTION_SETTING_S_S OPTION_SETTING_S_START EMPTY 0
+  {
+  }
+
+#ifndef PROJECT_NONSECURE
+
+  OFS1_SEC OPTION_SETTING_S_START+0 FIXED
+  {
+    *(.option_setting_ofs1_sec)
+  }
+
+  UNUSED_7 (ImageBase(OFS1_SEC)+ImageLength(OFS1_SEC)) FIXED FILL 0xFFFFFFFF (ImageBase(OFS1_SEC) + 0x10 - (ImageBase(OFS1_SEC)+ImageLength(OFS1_SEC)))
+  {
+
+  }
+
+  BANKSEL_SEC OPTION_SETTING_S_START+0x10 FIXED
+  {
+    *(.option_setting_banksel_sec)
+  }
+
+  UNUSED_8 (ImageBase(BANKSEL_SEC)+ImageLength(BANKSEL_SEC)) FIXED FILL 0xFFFFFFFF (ImageBase(OFS1_SEC) + 0x40 - (ImageBase(BANKSEL_SEC)+ImageLength(BANKSEL_SEC)))
+  {
+
+  }
+
+  BPS_SEC OPTION_SETTING_S_START+0x40 FIXED
+  {
+    *(.option_setting_bps_sec0)
+    *(.option_setting_bps_sec1)
+    *(.option_setting_bps_sec2)
+  }
+
+  UNUSED_9 (ImageBase(BPS_SEC)+ImageLength(BPS_SEC)) FIXED FILL 0xFFFFFFFF (ImageBase(OFS1_SEC) + 0x60 - (ImageBase(BPS_SEC)+ImageLength(BPS_SEC)))
+  {
+
+  }
+
+  PBPS_SEC OPTION_SETTING_S_START+0x60 FIXED
+  {
+    *(.option_setting_pbps_sec0)
+    *(.option_setting_pbps_sec1)
+    *(.option_setting_pbps_sec2)
+  }
+
+  UNUSED_10 (ImageBase(PBPS_SEC)+ImageLength(PBPS_SEC)) FIXED FILL 0xFFFFFFFF (ImageBase(OFS1_SEC) + 0x80 - (ImageBase(PBPS_SEC)+ImageLength(PBPS_SEC)))
+  {
+
+  }
+
+  OFS1_SEL OPTION_SETTING_S_START+0x80 FIXED
+  {
+    *(.option_setting_ofs1_sel)
+  }
+
+  UNUSED_11 (ImageBase(OFS1_SEL)+ImageLength(OFS1_SEL)) FIXED FILL 0xFFFFFFFF (ImageBase(OFS1_SEC) + 0x90 - (ImageBase(OFS1_SEL)+ImageLength(OFS1_SEL)))
+  {
+
+  }
+
+  BANKSEL_SEL OPTION_SETTING_S_START+0x90 FIXED
+  {
+    *(.option_setting_banksel_sel)
+  }
+
+  UNUSED_12 (ImageBase(BANKSEL_SEL)+ImageLength(BANKSEL_SEL)) FIXED FILL 0xFFFFFFFF (ImageBase(OFS1_SEC) + 0xC0 - (ImageBase(BANKSEL_SEL)+ImageLength(BANKSEL_SEL)))
+  {
+
+  }
+
+  BPS_SEL OPTION_SETTING_S_START+0xC0 FIXED
+  {
+    *(.option_setting_bps_sel0)
+    *(.option_setting_bps_sel1)
+    *(.option_setting_bps_sel2)
+  }
+
+  UNUSED_13 (ImageBase(BPS_SEL)+ImageLength(BPS_SEL)) FIXED FILL 0xFFFFFFFF (ImageBase(OFS1_SEC) + 0x100 - (ImageBase(BPS_SEL)+ImageLength(BPS_SEL)))
+  {
+
+  }
+
+#endif
+
+  __tz_OPTION_SETTING_S_N +0 EMPTY 0
+  {
+  }
+}
+#endif
+#endif
+
+LOAD_REGION_DATA_FLASH DATA_FLASH_START DATA_FLASH_LENGTH
+{
+  __tz_DATA_FLASH_S DATA_FLASH_S_START EMPTY 0
+  {
+  }
+  DATA_FLASH +0 FIXED
+  {
+    *(.data_flash*)
+  }
+  __tz_DATA_FLASH_N DATA_FLASH_NS_START EMPTY 0
+  {
+  }
+}
+
+LOAD_REGION_QSPI_FLASH QSPI_FLASH_START QSPI_FLASH_PRV_LENGTH
+{
+  __tz_QSPI_FLASH_S QSPI_FLASH_S_START EMPTY 0
+  {
+  }
+  QSPI_FLASH +0 FIXED
+  {
+    *(.qspi_flash*)
+    *(.code_in_qspi*)
+  }
+  __tz_QSPI_FLASH_N QSPI_FLASH_NS_START EMPTY 0
+  {
+  }
+}
+
+LOAD_REGION_OSPI_DEVICE_0 OSPI_DEVICE_0_START OSPI_DEVICE_0_PRV_LENGTH
+{
+  __tz_OSPI_DEVICE_0_S OSPI_DEVICE_0_S_START EMPTY 0
+  {
+  }
+  OSPI_DEVICE_0 +0 FIXED
+  {
+    *(.ospi_device_0*)
+    *(.code_in_ospi_device_0*)
+  }
+  __tz_OSPI_DEVICE_0_N OSPI_DEVICE_0_NS_START EMPTY 0
+  {
+  }
+}
+
+LOAD_REGION_OSPI_DEVICE_1 OSPI_DEVICE_1_START OSPI_DEVICE_1_PRV_LENGTH
+{
+  __tz_OSPI_DEVICE_1_S OSPI_DEVICE_1_S_START EMPTY 0
+  {
+  }
+  OSPI_DEVICE_1 +0 FIXED
+  {
+    *(.ospi_device_1*)
+    *(.code_in_ospi_device_1*)
+  }
+  __tz_OSPI_DEVICE_1_N OSPI_DEVICE_1_NS_START EMPTY 0
+  {
+  }
+}
+
+LOAD_REGION_SDRAM SDRAM_START SDRAM_LENGTH
+{
+  __tz_SDRAM_S SDRAM_S_START EMPTY 0
+  {
+  }
+  SDRAM +0 FIXED
+  {
+    *(.sdram*)
+    *(.frame*)
+  }
+  __tz_SDRAM_N SDRAM_NS_START EMPTY 0
+  {
+  }
+}
