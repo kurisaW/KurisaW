@@ -22,6 +22,7 @@
  * Includes   <System Includes> , "Project Includes"
  **********************************************************************************************************************/
 #include "bsp_api.h"
+#include <rtthread.h>
 
 /***********************************************************************************************************************
  * Macro definitions
@@ -181,6 +182,8 @@ extern void R_BSP_WarmStart(bsp_warm_start_event_t event);
 int32_t main(void);
 
 BSP_TARGET_ARM void                         system_init(void) BSP_PLACE_IN_SECTION(".loader_text");
+//BSP_TARGET_ARM void                         Reset_Handler(void);
+//BSP_TARGET_ARM void                         system_init(void);
 BSP_TARGET_ARM BSP_ATTRIBUTE_STACKLESS void stack_init(void);
 BSP_TARGET_ARM void                         mpu_cache_init(void);
 BSP_TARGET_ARM void                         bsp_mpu_init(void);
@@ -231,13 +234,62 @@ void Default_Handler (void)
  #define WEAK_REF_ATTRIBUTE    __attribute__((weak, alias("Default_Handler")))
 #endif
 
-void Reset_Handler(void) WEAK_REF_ATTRIBUTE;
-void Undefined_Handler(void) WEAK_REF_ATTRIBUTE;
-void SVC_Handler(void) WEAK_REF_ATTRIBUTE;
-void Prefetch_Handler(void) WEAK_REF_ATTRIBUTE;
-void Abort_Handler(void) WEAK_REF_ATTRIBUTE;
-void Reserved_Handler(void) WEAK_REF_ATTRIBUTE;
-void FIQ_Handler(void) WEAK_REF_ATTRIBUTE;
+//void Reset_Handler(void) WEAK_REF_ATTRIBUTE;
+//void Undefined_Handler(void) WEAK_REF_ATTRIBUTE;
+//void SVC_Handler(void) WEAK_REF_ATTRIBUTE;
+//void Prefetch_Handler(void) WEAK_REF_ATTRIBUTE;
+//void Abort_Handler(void) WEAK_REF_ATTRIBUTE;
+//void Reserved_Handler(void) WEAK_REF_ATTRIBUTE;
+//void FIQ_Handler(void) WEAK_REF_ATTRIBUTE;
+
+void Reset_Handler (void)
+{
+    system_init();
+
+    /* Call user application. */
+#ifdef __ARMCC_VERSION
+    main();
+#elif defined(__GNUC__)
+    extern int entry(void);
+    entry();
+#endif
+
+    while (1)
+    {
+        /* Infinite Loop. */
+    }
+}
+void Undefined_Handler(void)
+{
+    rt_kprintf("Undefined_Handler\n");
+    while(1);
+}
+void SVC_Handler(void)
+{
+    rt_kprintf("SVC_Handler\n");
+    while(1);
+}
+void Prefetch_Handler(void)
+{
+    rt_kprintf("Prefetch_Handler\n");
+    while(1);
+}
+void Abort_Handler(void)
+{
+    rt_kprintf("Abort_Handler\n");
+    while(1);
+}
+void Reserved_Handler(void)
+{
+    rt_kprintf("Reserved_Handler\n");
+    while(1);
+}
+void FIQ_Handler(void)
+{
+    rt_kprintf("FIQ_Handler\n");
+    while(1);
+}
+
 
 /* Stacks */
 BSP_DONT_REMOVE static uint8_t g_fiq_stack[BSP_CFG_STACK_FIQ_BYTES] BSP_ALIGN_VARIABLE(BSP_STACK_ALIGNMENT)
@@ -763,9 +815,9 @@ BSP_TARGET_ARM void mpu_cache_init (void)
 #endif
 
     /* Jump to main. */
-    main();
-//    extern int entry(void);
-//    entry();
+//    main();
+    extern int entry(void);
+    entry();
 }
 
 /*******************************************************************************************************************//**
