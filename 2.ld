@@ -48,8 +48,7 @@ CS3_SPACE_PRV_LENGTH = DEFINED(CS3_SPACE_LENGTH) ? CS3_SPACE_LENGTH : 0;
 CS5_SPACE_PRV_START = DEFINED(CS5_SPACE_START) ? CS5_SPACE_START : 0;
 CS5_SPACE_PRV_LENGTH = DEFINED(CS5_SPACE_LENGTH) ? CS5_SPACE_LENGTH : 0;
 
-/* Define starting addresses for DMAC link mode data, CPU-shared non-cache, and CPU-specific non-cache areas. */
-DMAC_LINK_MODE_START = DEFINED(SYSTEM_RAM_MIRROR_START) ? SYSTEM_RAM_MIRROR_START + SYSTEM_RAM_MIRROR_LENGTH - 0x00044000 : 0;
+/* Define starting addresses for CPU-shared and CPU-specific non-cache areas. */
 SHARED_NONCACHE_BUFFER_START = DEFINED(SYSTEM_RAM_MIRROR_START) ? SYSTEM_RAM_MIRROR_START + SYSTEM_RAM_MIRROR_LENGTH - 0x00040000 : 0;
 NONCACHE_BUFFER_START = DEFINED(SYSTEM_RAM_MIRROR_START) ? SYSTEM_RAM_MIRROR_START + SYSTEM_RAM_MIRROR_LENGTH - 0x00020000 : 0;
 
@@ -75,7 +74,6 @@ MEMORY
     CS2_SPACE : ORIGIN = CS2_SPACE_PRV_START, LENGTH = CS2_SPACE_PRV_LENGTH
     CS3_SPACE : ORIGIN = CS3_SPACE_PRV_START, LENGTH = CS3_SPACE_PRV_LENGTH
     CS5_SPACE : ORIGIN = CS5_SPACE_PRV_START, LENGTH = CS5_SPACE_PRV_LENGTH
-    DUMMY     : ORIGIN = 0x00000040, LENGTH = 0x00000004
 }
 
 SECTIONS
@@ -92,10 +90,12 @@ SECTIONS
         . = . + (_loader_data_end - _loader_data_start);
         _mfvector = .;
         . = . + (_fvector_end - _fvector_start);
+        _matcm_text = .;
+        . = . + (_atcm_text_end - _atcm_text_start);
+        _matcm_data = .;
+        . = . + (_atcm_data_end - _atcm_data_start);
         _mtext = .;
         . = . + (_text_end - _text_start);
-        _mdummy = .;
-        . = . + (_dummy_end - _dummy_start);
         _mdata = .;
         . = . + (_data_end - _data_start);
         flash_contents_end = .;
@@ -122,7 +122,6 @@ SECTIONS
         */fsp/src/bsp/mcu/all/bsp_irq.o(.data*)
         */fsp/src/bsp/mcu/all/bsp_register_protection.o(.data*)
         */fsp/src/r_ioport/r_ioport.o(.data*)
-        . = ALIGN(4);
         __loader_data_end = .;
         __loader_bss_start = .;
         */fsp/src/bsp/cmsis/Device/RENESAS/Source/*.o(.bss*)
@@ -135,7 +134,6 @@ SECTIONS
         */fsp/src/bsp/mcu/all/bsp_irq.o(COMMON)
         */fsp/src/bsp/mcu/all/bsp_register_protection.o(.COMMON)
         */fsp/src/r_ioport/r_ioport.o(.COMMON)
-        . = ALIGN(4);
         __loader_bss_end = . ;
         _loader_data_end = .;
     } > BTCM
@@ -145,19 +143,37 @@ SECTIONS
         KEEP(*(.intvec))
         _fvector_end = .;
     } > ATCM
-    .text 0x00000100 : AT (_mtext)
+    
+    .atcm_text  : AT (_matcm_text)
+    {
+        _atcm_text_start = .;
+        ./src/coremark/*.o(.text*)
+        _atcm_text_end = .;
+    } > ATCM
+    
+    .atcm_data  : AT (_matcm_data)
+    {
+        _atcm_data_start = .;
+        
+        __atcm_data_start = .;
+        ./src/coremark/*.o(.data*)
+        __atcm_data_end = .;   
+      
+        __atcm_bss_start = .;
+        ./src/coremark/*.o(.bss*)
+        ./src/coremark/*.o(COMMON)
+        __atcm_bss_end = . ;    
+        
+        _atcm_data_end = .;   
+    } > ATCM
+    
+    .text  : AT (_mtext)
     {
         _text_start = .;
         *(.text*)
 
         KEEP(*(.init))
         KEEP(*(.fini))
-
-        /* section information for utest */
-        . = ALIGN(4);
-        __rt_utest_tc_tab_start = .;
-        KEEP(*(UtestTcTab))
-        __rt_utest_tc_tab_end = .;
 
         /* .ctors */
         *crtbegin.o(.ctors)
@@ -176,36 +192,29 @@ SECTIONS
         _dtor_end = .;
 
         KEEP(*(.eh_frame*))
-    } > ATCM
+    } > SYSTEM_RAM_MIRROR
     .rvectors :
     {
         _rvectors_start = .;
         KEEP(*(.rvectors))
         _rvectors_end = .;
-    } > ATCM
+    } > SYSTEM_RAM_MIRROR
     .ARM.extab :
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
-    } > ATCM
+    } > SYSTEM_RAM_MIRROR
     __exidx_start = .;
     .ARM.exidx :
     {
         *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    } > ATCM
+    } > SYSTEM_RAM_MIRROR
     __exidx_end = .;
     .got :
     {
         *(.got)
         *(.got.plt)
-        . = ALIGN(4);
         _text_end = .;
-    } > ATCM
-    .dummy :
-    {
-        _dummy_start = .;
-        KEEP(*(.dummy));
-        _dummy_end = .;
-    } > DUMMY
+    } > SYSTEM_RAM_MIRROR
     .data :  AT (_mdata)
     {
         _data_start = .;
@@ -243,7 +252,7 @@ SECTIONS
 
         /* All data end */
         _data_end = .;
-    } > ATCM
+    } > SYSTEM_RAM_MIRROR
     .bss :
     {
         . = ALIGN(4);
@@ -255,7 +264,7 @@ SECTIONS
         __bss_end__ = .;
         _ebss = .;
         _end = .;
-    } > ATCM
+    } > SYSTEM_RAM_MIRROR
     .heap (NOLOAD) :
     {
         . = ALIGN(8);
@@ -263,7 +272,7 @@ SECTIONS
         /* Place the STD heap here. */
         KEEP(*(.heap))
         __HeapLimit = .;
-    } > ATCM
+    } > SYSTEM_RAM_MIRROR
     .thread_stack (NOLOAD):
     {
         . = ALIGN(8);
@@ -271,7 +280,7 @@ SECTIONS
         /* Place the Thread stacks here. */
         KEEP(*(.stack*))
         __ThreadStackLimit = .;
-    } > ATCM
+    } > BTCM
     .sys_stack (NOLOAD) :
     {
         . = ALIGN(8);
@@ -320,13 +329,6 @@ SECTIONS
         KEEP(*(.abt_stack))
         __AbtStackLimit = .;
     } > BTCM
-    .dmac_link_mode DMAC_LINK_MODE_START : AT (DMAC_LINK_MODE_START)
-    {
-        . = ALIGN(4);
-        _DmacLinkMode_start = .;
-        KEEP(*(.dmac_link_mode*))
-        _DmacLinkMode_end = .;
-    } > SYSTEM_RAM_MIRROR
     .shared_noncache_buffer SHARED_NONCACHE_BUFFER_START : AT (SHARED_NONCACHE_BUFFER_START)
     {
         . = ALIGN(32);
