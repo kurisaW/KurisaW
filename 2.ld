@@ -75,17 +75,34 @@ MEMORY
     CS2_SPACE : ORIGIN = CS2_SPACE_PRV_START, LENGTH = CS2_SPACE_PRV_LENGTH
     CS3_SPACE : ORIGIN = CS3_SPACE_PRV_START, LENGTH = CS3_SPACE_PRV_LENGTH
     CS5_SPACE : ORIGIN = CS5_SPACE_PRV_START, LENGTH = CS5_SPACE_PRV_LENGTH
-    DUMMY     : ORIGIN = 0x00000040, LENGTH = 0x00000008
+    DUMMY     : ORIGIN = 0x00000040, LENGTH = 0x00000004
 }
-
-/*
-ENTRY(Reset_Handler)
-*/
 
 SECTIONS
 {
-    .loader_text 0x00102000 : AT (0x00102000)
+    .loader_param 0x60000000 : AT (0x60000000)
     {
+        KEEP(*(.loader_param))
+    } > xSPI0_CS0_SPACE
+    .flash_contents 0x6000004C : AT (0x6000004C)
+    {
+        _mloader_text = .;
+        . = . + (_loader_text_end - _loader_text_start);
+        _mloader_data = .;
+        . = . + (_loader_data_end - _loader_data_start);
+        _mfvector = .;
+        . = . + (_fvector_end - _fvector_start);
+        _mtext = .;
+        . = . + (_text_end - _text_start);
+        _mdummy = .;
+        . = . + (_dummy_end - _dummy_start);
+        _mdata = .;
+        . = . + (_data_end - _data_start);
+        flash_contents_end = .;
+    } > xSPI0_CS0_SPACE
+    .loader_text 0x00102000 : AT (_mloader_text)
+    {
+        _loader_text_start = .;
         *(.loader_text)
         */fsp/src/bsp/cmsis/Device/RENESAS/Source/*.o(.text*)
         */fsp/src/bsp/mcu/all/bsp_clocks.o(.text*)
@@ -93,21 +110,20 @@ SECTIONS
         */fsp/src/bsp/mcu/all/bsp_register_protection.o(.text*)
         */fsp/src/r_ioport/r_ioport.o(.text*)
         KEEP(*(.warm_start))
+        . = . + (512 - ((. - _loader_text_start) % 512));
+        _loader_text_end = .;
     } > BTCM
-    .loader_dummy :
+    .loader_data : AT (_mloader_data)
     {
-        _loader_dummy_start = .;
-        KEEP(*(.loader_dummy));
-        _loader_dummy_end = .;
-    } >  BTCM
-    .loader_data :
-    {
+        _loader_data_start = .;
+        __loader_data_start = .;
         */fsp/src/bsp/cmsis/Device/RENESAS/Source/*.o(.data*)
         */fsp/src/bsp/mcu/all/bsp_clocks.o(.data*)
         */fsp/src/bsp/mcu/all/bsp_irq.o(.data*)
         */fsp/src/bsp/mcu/all/bsp_register_protection.o(.data*)
         */fsp/src/r_ioport/r_ioport.o(.data*)
         . = ALIGN(4);
+        __loader_data_end = .;
         __loader_bss_start = .;
         */fsp/src/bsp/cmsis/Device/RENESAS/Source/*.o(.bss*)
         */fsp/src/bsp/mcu/all/bsp_clocks.o(.bss*)
@@ -121,14 +137,15 @@ SECTIONS
         */fsp/src/r_ioport/r_ioport.o(.COMMON)
         . = ALIGN(4);
         __loader_bss_end = . ;
+        _loader_data_end = .;
     } > BTCM
-    .intvec 0x00000000 : AT (0x00000000)
+    .intvec 0x00000000 : AT (_mfvector)
     {
         _fvector_start = .;
         KEEP(*(.intvec))
         _fvector_end = .;
     } > ATCM
-    .text 0x00000100 : AT (0x00000100)
+    .text 0x00000100 : AT (_mtext)
     {
         _text_start = .;
         *(.text*)
@@ -141,6 +158,26 @@ SECTIONS
         __rt_utest_tc_tab_start = .;
         KEEP(*(UtestTcTab))
         __rt_utest_tc_tab_end = .;
+
+		/* section information for finsh shell */
+		. = ALIGN(4);
+		__fsymtab_start = .;
+		KEEP(*(FSymTab))
+		__fsymtab_end = .;
+		
+		. = ALIGN(4);
+		__vsymtab_start = .;
+		KEEP(*(VSymTab))
+		__vsymtab_end = .;
+		
+		/* section information for initial. */
+		. = ALIGN(4);
+		__rt_init_start = .;
+		KEEP(*(SORT(.rti_fn*)))
+		__rt_init_end = .;
+		
+		. = ALIGN(4);
+		KEEP(*(FalPartTable))
 
         /* .ctors */
         *crtbegin.o(.ctors)
@@ -180,6 +217,7 @@ SECTIONS
     {
         *(.got)
         *(.got.plt)
+        . = ALIGN(4);
         _text_end = .;
     } > ATCM
     .dummy :
@@ -187,8 +225,8 @@ SECTIONS
         _dummy_start = .;
         KEEP(*(.dummy));
         _dummy_end = .;
-    } >  ATCM
-    .data :
+    } > DUMMY
+    .data :  AT (_mdata)
     {
         _data_start = .;
 
