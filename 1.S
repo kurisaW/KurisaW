@@ -179,22 +179,6 @@ SECTIONS
 		. = ALIGN(4);
 		KEEP(*(FalPartTable))
 
-        /* new GCC version uses .init_array */
-        PROVIDE(__ctors_start__ = .);
-        KEEP (*(SORT(.init_array.*)))
-        KEEP (*(.init_array))
-        PROVIDE(__ctors_end__ = .);
-
-        . = ALIGN(4);
-
-        /* .data section which is used for initialized data */
-        PROVIDE(__dtors_start__ = .);
-        KEEP(*(SORT(.dtors.*)))
-        KEEP(*(.dtors))
-        PROVIDE(__dtors_end__ = .);
-
-        . = ALIGN(4);
-
         /* .ctors */
         *crtbegin.o(.ctors)
         *crtbegin?.o(.ctors)
@@ -213,15 +197,6 @@ SECTIONS
 
         KEEP(*(.eh_frame*))
     } > ATCM
-    
-    /* .ARM.exidx is sorted, so has to go in its own output section.  */
-    .ARM.exidx   :
-    {
-        __exidx_start__ = .;
-        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-        __exidx_end__ = .;
-    } > ATCM
-    
     .rvectors :
     {
         _rvectors_start = .;
@@ -253,10 +228,6 @@ SECTIONS
     } > DUMMY
     .data :  AT (_mdata)
     {
-		. = ALIGN(4);
-        /* This is used by the startup in order to initialize the .data secion */
-        _sdata = . ;
-		
         _data_start = .;
 
         *(vtable)
@@ -391,3 +362,4 @@ SECTIONS
         _ncbuffer_end = .;
     } > SYSTEM_RAM_MIRROR
 }
+
