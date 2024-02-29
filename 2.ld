@@ -194,9 +194,6 @@ SECTIONS
         PROVIDE(__dtors_end__ = .);
 
         . = ALIGN(4);
-        
-        /* This is used by the startup in order to initialize the .data secion */
-        _edata = . ;
 
         /* .ctors */
         *crtbegin.o(.ctors)
@@ -216,16 +213,6 @@ SECTIONS
 
         KEEP(*(.eh_frame*))
     } > ATCM
-    /* .ARM.exidx is sorted, so has to go in its own output section.  */
-    __exidx_start = .;
-    .ARM.exidx :
-    {
-        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-
-        /* This is used by the startup in order to initialize the .data secion */
-        _sidata = .;
-    } > ATCM
-    __exidx_end = .;
     .rvectors :
     {
         _rvectors_start = .;
@@ -236,12 +223,12 @@ SECTIONS
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
     } > ATCM
-    __exidx_start = .;
     .ARM.exidx :
     {
+        __exidx_start = .;
         *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+        __exidx_end = .;
     } > ATCM
-    __exidx_end = .;
     .got :
     {
         *(.got)
@@ -257,10 +244,6 @@ SECTIONS
     } > DUMMY
     .data :  AT (_mdata)
     {
-		. = ALIGN(4);
-        /* This is used by the startup in order to initialize the .data secion */
-        _sdata = . ;
-		
         _data_start = .;
 
         *(vtable)
@@ -395,4 +378,3 @@ SECTIONS
         _ncbuffer_end = .;
     } > SYSTEM_RAM_MIRROR
 }
-
