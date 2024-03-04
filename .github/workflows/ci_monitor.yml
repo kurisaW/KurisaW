@@ -1,0 +1,55 @@
+name: CI Monitoring and Reporting
+
+# on:
+#   schedule:
+#     - cron: '0 0 * * *'  # 设置定时触发，每天UTC 00:00执行一次
+on:
+  push:
+    branches: [ master ]
+  delete:
+    branches: [ master ]
+  create:
+    branches: [ master ]
+
+jobs:
+  monitor-and-report:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+
+    - name: Run CI Monitoring and Reporting
+      run: |
+        # 替换以下仓库列表为你想要监视的仓库
+        repositories=("RT-Thread-packages/hello")
+
+        for repo in "${repositories[@]}"; do
+          # 获取指定仓库的CI运行情况
+          ci_runs=$(curl -s -H "Accept: application/vnd.github.v3+json" \
+                      https://api.github.com/repos/$repo/actions/runs)
+
+          # 解析 CI 运行情况
+          for run in $(echo "${ci_runs}" | jq -c '.workflow_runs[]'); do
+            run_status=$(echo "${run}" | jq -r '.conclusion')
+            
+            # 在这里可以根据具体情况进一步判断 CI 运行状态
+            if [ "$run_status" == "failure" ]; then
+              # CI 运行失败的处理逻辑
+              echo "CI in $repo has failed."
+              # 编写代码生成报告并提交到仓库1
+            else
+              echo "CI in $repo is successful."
+            fi
+          done
+        done
