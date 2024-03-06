@@ -1,1 +1,339 @@
-arm-none-eabi-gcc -o rtthread.elf -march=armv7-a -mtune=cortex-a7 -ftree-vectorize -ffast-math -funwind-tables -fno-strict-aliasing -Wl,--gc-sections,-Map=rtthread.map,-cref,-u,system_vectors -T link.lds -lsupc++ -lgcc -static build/kernel/components/dfs/dfs_v2/filesystems/devfs/devfs.o build/kernel/components/dfs/dfs_v2/filesystems/elmfat/dfs_elm.o build/kernel/components/dfs/dfs_v2/filesystems/elmfat/ff.o build/kernel/components/dfs/dfs_v2/filesystems/elmfat/ffunicode.o build/kernel/components/dfs/dfs_v2/filesystems/mqueue/dfs_mqueue.o build/kernel/components/dfs/dfs_v2/filesystems/romfs/dfs_romfs.o build/kernel/components/dfs/dfs_v2/filesystems/romfs/romfs.o build/kernel/components/dfs/dfs_v2/filesystems/tmpfs/dfs_tmpfs.o build/kernel/components/dfs/dfs_v2/src/dfs.o build/kernel/components/dfs/dfs_v2/src/dfs_dentry.o build/kernel/components/dfs/dfs_v2/src/dfs_file.o build/kernel/components/dfs/dfs_v2/src/dfs_fs.o build/kernel/components/dfs/dfs_v2/src/dfs_mnt.o build/kernel/components/dfs/dfs_v2/src/dfs_pcache.o build/kernel/components/dfs/dfs_v2/src/dfs_posix.o build/kernel/components/dfs/dfs_v2/src/dfs_seq_file.o build/kernel/components/dfs/dfs_v2/src/dfs_vnode.o build/kernel/components/drivers/ktime/src/boottime.o build/kernel/components/drivers/ktime/src/cputimer.o build/kernel/components/drivers/ktime/src/hrtimer.o build/kernel/components/finsh/cmd.o build/kernel/components/finsh/msh.o build/kernel/components/finsh/msh_file.o build/kernel/components/finsh/msh_parse.o build/kernel/components/finsh/shell.o build/kernel/components/legacy/ipc/workqueue_legacy.o build/kernel/components/libc/compilers/common/cctype.o build/kernel/components/libc/compilers/common/cstdlib.o build/kernel/components/libc/compilers/common/cstring.o build/kernel/components/libc/compilers/common/ctime.o build/kernel/components/libc/compilers/common/cunistd.o build/kernel/components/libc/compilers/common/cwchar.o build/kernel/components/libc/compilers/newlib/syscalls.o build/kernel/components/libc/posix/delay/delay.o build/kernel/components/libc/posix/io/aio/aio.o build/kernel/components/libc/posix/io/poll/poll.o build/kernel/components/libc/posix/io/poll/select.o build/kernel/components/libc/posix/io/stdio/stdio.o build/kernel/components/libc/posix/io/termios/termios.o build/kernel/components/libc/posix/ipc/mqueue.o build/kernel/components/libc/posix/ipc/semaphore.o build/kernel/components/mm/avl_adpt.o build/kernel/components/mm/ioremap.o build/kernel/components/mm/mm_anon.o build/kernel/components/mm/mm_aspace.o build/kernel/components/mm/mm_fault.o build/kernel/components/mm/mm_kmem.o build/kernel/components/mm/mm_object.o build/kernel/components/mm/mm_page.o build/kernel/components/utilities/libadt/avl/avl.o build/kernel/components/utilities/resource/resource_id.o build/kernel/libcpu/arm/common/atomic_arm.o build/kernel/libcpu/arm/common/div0.o build/kernel/libcpu/arm/common/showmem.o build/kernel/libcpu/arm/cortex-a/backtrace.o build/kernel/libcpu/arm/cortex-a/cache.o build/kernel/libcpu/arm/cortex-a/context_gcc.o build/kernel/libcpu/arm/cortex-a/cp15_gcc.o build/kernel/libcpu/arm/cortex-a/cpuport.o build/kernel/libcpu/arm/cortex-a/gic.o build/kernel/libcpu/arm/cortex-a/gtimer.o build/kernel/libcpu/arm/cortex-a/interrupt.o build/kernel/libcpu/arm/cortex-a/mmu.o build/kernel/libcpu/arm/cortex-a/pmu.o build/kernel/libcpu/arm/cortex-a/stack.o build/kernel/libcpu/arm/cortex-a/start_gcc.o build/kernel/libcpu/arm/cortex-a/trap.o build/kernel/libcpu/arm/cortex-a/vector_gcc.o build/kernel/src/clock.o build/kernel/src/components.o build/kernel/src/idle.o build/kernel/src/ipc.o build/kernel/src/irq.o build/kernel/src/kservice.o build/kernel/src/mem.o build/kernel/src/memheap.o build/kernel/src/mempool.o build/kernel/src/object.o build/kernel/src/scheduler_up.o build/kernel/src/thread.o build/kernel/src/timer.o build/applications/lcd_init.o build/applications/main.o build/applications/mnt.o build/drivers/board.o build/drivers/drv_keyboard.o build/drivers/drv_mouse.o build/drivers/drv_sdio.o build/drivers/drv_timer.o build/drivers/secondary_cpu.o build/drivers/serial.o build/kernel/components/drivers/core/bus.o build/kernel/components/drivers/core/device.o build/kernel/components/drivers/i2c/i2c-bit-ops.o build/kernel/components/drivers/i2c/i2c_core.o build/kernel/components/drivers/i2c/i2c_dev.o build/kernel/components/drivers/ipc/completion.o build/kernel/components/drivers/ipc/dataqueue.o build/kernel/components/drivers/ipc/pipe.o build/kernel/components/drivers/ipc/ringblk_buf.o build/kernel/components/drivers/ipc/ringbuffer.o build/kernel/components/drivers/ipc/waitqueue.o build/kernel/components/drivers/ipc/workqueue.o build/kernel/components/drivers/misc/pin.o build/kernel/components/drivers/misc/rt_null.o build/kernel/components/drivers/misc/rt_random.o build/kernel/components/drivers/misc/rt_zero.o build/kernel/components/drivers/mtd/mtd_nand.o build/kernel/components/drivers/mtd/mtd_nor.o build/kernel/components/drivers/rtc/rtc.o build/kernel/components/drivers/rtc/soft_rtc.o build/kernel/components/drivers/sdio/block_dev.o build/kernel/components/drivers/sdio/gpt.o build/kernel/components/drivers/sdio/mmc.o build/kernel/components/drivers/sdio/mmcsd_core.o build/kernel/components/drivers/sdio/sd.o build/kernel/components/drivers/sdio/sdio.o build/kernel/components/drivers/serial/serial.o build/kernel/components/drivers/spi/sfud/src/sfud.o build/kernel/components/drivers/spi/sfud/src/sfud_sfdp.o build/kernel/components/drivers/spi/spi_core.o build/kernel/components/drivers/spi/spi_dev.o build/kernel/components/drivers/spi/spi_flash_sfud.o build/kernel/components/drivers/spi/spi_msd.o build/kernel/components/drivers/watchdog/watchdog.o -lc -lm
+/*
+                  Linker File for Renesas RZ/N2L FSP
+*/
+
+INCLUDE memory_regions.ld
+
+/* The memory information for each device is done in memory regions file.
+ * The starting address and length of memory not defined in memory regions file are defined as 0. */
+
+ATCM_PRV_START = DEFINED(ATCM_START) ? ATCM_START : 0;
+ATCM_PRV_LENGTH = DEFINED(ATCM_LENGTH) ? ATCM_LENGTH : 0;
+BTCM_PRV_START = DEFINED(BTCM_START) ? BTCM_START : 0;
+BTCM_PRV_LENGTH = DEFINED(BTCM_LENGTH) ? BTCM_LENGTH : 0;
+SYSTEM_RAM_PRV_START = DEFINED(SYSTEM_RAM_START) ? SYSTEM_RAM_START : 0;
+SYSTEM_RAM_PRV_LENGTH = DEFINED(SYSTEM_RAM_LENGTH) ? SYSTEM_RAM_LENGTH : 0;
+SYSTEM_RAM_MIRROR_PRV_START = DEFINED(SYSTEM_RAM_MIRROR_START) ? SYSTEM_RAM_MIRROR_START : 0;
+SYSTEM_RAM_MIRROR_PRV_LENGTH = DEFINED(SYSTEM_RAM_MIRROR_LENGTH) ? SYSTEM_RAM_MIRROR_LENGTH : 0;
+xSPI0_CS0_SPACE_MIRROR_PRV_START = DEFINED(xSPI0_CS0_SPACE_MIRROR_START) ? xSPI0_CS0_SPACE_MIRROR_START : 0;
+xSPI0_CS0_SPACE_MIRROR_PRV_LENGTH = DEFINED(xSPI0_CS0_SPACE_MIRROR_LENGTH) ? xSPI0_CS0_SPACE_MIRROR_LENGTH : 0;
+xSPI0_CS1_SPACE_MIRROR_PRV_START = DEFINED(xSPI0_CS1_SPACE_MIRROR_START) ? xSPI0_CS1_SPACE_MIRROR_START : 0;
+xSPI0_CS1_SPACE_MIRROR_PRV_LENGTH = DEFINED(xSPI0_CS1_SPACE_MIRROR_LENGTH) ? xSPI0_CS1_SPACE_MIRROR_LENGTH : 0;
+xSPI1_CS0_SPACE_MIRROR_PRV_START = DEFINED(xSPI1_CS0_SPACE_MIRROR_START) ? xSPI1_CS0_SPACE_MIRROR_START : 0;
+xSPI1_CS0_SPACE_MIRROR_PRV_LENGTH = DEFINED(xSPI1_CS0_SPACE_MIRROR_LENGTH) ? xSPI1_CS0_SPACE_MIRROR_LENGTH : 0;
+xSPI1_CS1_SPACE_MIRROR_PRV_START = DEFINED(xSPI1_CS1_SPACE_MIRROR_START) ? xSPI1_CS1_SPACE_MIRROR_START : 0;
+xSPI1_CS1_SPACE_MIRROR_PRV_LENGTH = DEFINED(xSPI1_CS1_SPACE_MIRROR_LENGTH) ? xSPI1_CS1_SPACE_MIRROR_LENGTH : 0;
+CS0_SPACE_MIRROR_PRV_START = DEFINED(CS0_SPACE_MIRROR_START) ? CS0_SPACE_MIRROR_START : 0;
+CS0_SPACE_MIRROR_PRV_LENGTH = DEFINED(CS0_SPACE_MIRROR_LENGTH) ? CS0_SPACE_MIRROR_LENGTH : 0;
+CS2_SPACE_MIRROR_PRV_START = DEFINED(CS2_SPACE_MIRROR_START) ? CS2_SPACE_MIRROR_START : 0;
+CS2_SPACE_MIRROR_PRV_LENGTH = DEFINED(CS2_SPACE_MIRROR_LENGTH) ? CS2_SPACE_MIRROR_LENGTH : 0;
+CS3_SPACE_MIRROR_PRV_START = DEFINED(CS3_SPACE_MIRROR_START) ? CS3_SPACE_MIRROR_START : 0;
+CS3_SPACE_MIRROR_PRV_LENGTH = DEFINED(CS3_SPACE_MIRROR_LENGTH) ? CS3_SPACE_MIRROR_LENGTH : 0;
+CS5_SPACE_MIRROR_PRV_START = DEFINED(CS5_SPACE_MIRROR_START) ? CS5_SPACE_MIRROR_START : 0;
+CS5_SPACE_MIRROR_PRV_LENGTH = DEFINED(CS5_SPACE_MIRROR_LENGTH) ? CS5_SPACE_MIRROR_LENGTH : 0;
+xSPI0_CS0_SPACE_PRV_START = DEFINED(xSPI0_CS0_SPACE_START) ? xSPI0_CS0_SPACE_START : 0;
+xSPI0_CS0_SPACE_PRV_LENGTH = DEFINED(xSPI0_CS0_SPACE_LENGTH) ? xSPI0_CS0_SPACE_LENGTH : 0;
+xSPI0_CS1_SPACE_PRV_START = DEFINED(xSPI0_CS1_SPACE_START) ? xSPI0_CS1_SPACE_START : 0;
+xSPI0_CS1_SPACE_PRV_LENGTH = DEFINED(xSPI0_CS1_SPACE_LENGTH) ? xSPI0_CS1_SPACE_LENGTH : 0;
+xSPI1_CS0_SPACE_PRV_START = DEFINED(xSPI1_CS0_SPACE_START) ? xSPI1_CS0_SPACE_START : 0;
+xSPI1_CS0_SPACE_PRV_LENGTH = DEFINED(xSPI1_CS0_SPACE_LENGTH) ? xSPI1_CS0_SPACE_LENGTH : 0;
+xSPI1_CS1_SPACE_PRV_START = DEFINED(xSPI1_CS1_SPACE_START) ? xSPI1_CS1_SPACE_START : 0;
+xSPI1_CS1_SPACE_PRV_LENGTH = DEFINED(xSPI1_CS1_SPACE_LENGTH) ? xSPI1_CS1_SPACE_LENGTH : 0;
+CS0_SPACE_PRV_START = DEFINED(CS0_SPACE_START) ? CS0_SPACE_START : 0;
+CS0_SPACE_PRV_LENGTH = DEFINED(CS0_SPACE_LENGTH) ? CS0_SPACE_LENGTH : 0;
+CS2_SPACE_PRV_START = DEFINED(CS2_SPACE_START) ? CS2_SPACE_START : 0;
+CS2_SPACE_PRV_LENGTH = DEFINED(CS2_SPACE_LENGTH) ? CS2_SPACE_LENGTH : 0;
+CS3_SPACE_PRV_START = DEFINED(CS3_SPACE_START) ? CS3_SPACE_START : 0;
+CS3_SPACE_PRV_LENGTH = DEFINED(CS3_SPACE_LENGTH) ? CS3_SPACE_LENGTH : 0;
+CS5_SPACE_PRV_START = DEFINED(CS5_SPACE_START) ? CS5_SPACE_START : 0;
+CS5_SPACE_PRV_LENGTH = DEFINED(CS5_SPACE_LENGTH) ? CS5_SPACE_LENGTH : 0;
+
+/* Define starting addresses for DMAC link mode data, CPU-shared non-cache, and CPU-specific non-cache areas. */
+DMAC_LINK_MODE_START = DEFINED(SYSTEM_RAM_MIRROR_START) ? SYSTEM_RAM_MIRROR_START + SYSTEM_RAM_MIRROR_LENGTH - 0x00044000 : 0;
+SHARED_NONCACHE_BUFFER_START = DEFINED(SYSTEM_RAM_MIRROR_START) ? SYSTEM_RAM_MIRROR_START + SYSTEM_RAM_MIRROR_LENGTH - 0x00040000 : 0;
+NONCACHE_BUFFER_START = DEFINED(SYSTEM_RAM_MIRROR_START) ? SYSTEM_RAM_MIRROR_START + SYSTEM_RAM_MIRROR_LENGTH - 0x00020000 : 0;
+
+MEMORY
+{
+    ATCM : ORIGIN = ATCM_PRV_START, LENGTH = ATCM_PRV_LENGTH
+    BTCM : ORIGIN = BTCM_PRV_START, LENGTH = BTCM_PRV_LENGTH
+    SYSTEM_RAM : ORIGIN = SYSTEM_RAM_PRV_START, LENGTH = SYSTEM_RAM_PRV_LENGTH
+    SYSTEM_RAM_MIRROR : ORIGIN = SYSTEM_RAM_MIRROR_PRV_START, LENGTH = SYSTEM_RAM_MIRROR_PRV_LENGTH
+    xSPI0_CS0_SPACE_MIRROR : ORIGIN = xSPI0_CS0_SPACE_MIRROR_PRV_START, LENGTH = xSPI0_CS0_SPACE_MIRROR_PRV_LENGTH
+    xSPI0_CS1_SPACE_MIRROR : ORIGIN = xSPI0_CS1_SPACE_MIRROR_PRV_START, LENGTH = xSPI0_CS1_SPACE_MIRROR_PRV_LENGTH
+    xSPI1_CS0_SPACE_MIRROR : ORIGIN = xSPI1_CS0_SPACE_MIRROR_PRV_START, LENGTH = xSPI1_CS0_SPACE_MIRROR_PRV_LENGTH
+    xSPI1_CS1_SPACE_MIRROR : ORIGIN = xSPI1_CS1_SPACE_MIRROR_PRV_START, LENGTH = xSPI1_CS1_SPACE_MIRROR_PRV_LENGTH
+    CS0_SPACE_MIRROR : ORIGIN = CS0_SPACE_MIRROR_PRV_START, LENGTH = CS0_SPACE_MIRROR_PRV_LENGTH
+    CS2_SPACE_MIRROR : ORIGIN = CS2_SPACE_MIRROR_PRV_START, LENGTH = CS2_SPACE_MIRROR_PRV_LENGTH
+    CS3_SPACE_MIRROR : ORIGIN = CS3_SPACE_MIRROR_PRV_START, LENGTH = CS3_SPACE_MIRROR_PRV_LENGTH
+    CS5_SPACE_MIRROR : ORIGIN = CS5_SPACE_MIRROR_PRV_START, LENGTH = CS5_SPACE_MIRROR_PRV_LENGTH
+    xSPI0_CS0_SPACE : ORIGIN = xSPI0_CS0_SPACE_PRV_START, LENGTH = xSPI0_CS0_SPACE_PRV_LENGTH
+    xSPI0_CS1_SPACE : ORIGIN = xSPI0_CS1_SPACE_PRV_START, LENGTH = xSPI0_CS1_SPACE_PRV_LENGTH
+    xSPI1_CS0_SPACE : ORIGIN = xSPI1_CS0_SPACE_PRV_START, LENGTH = xSPI1_CS0_SPACE_PRV_LENGTH
+    xSPI1_CS1_SPACE : ORIGIN = xSPI1_CS1_SPACE_PRV_START, LENGTH = xSPI1_CS1_SPACE_PRV_LENGTH
+    CS0_SPACE : ORIGIN = CS0_SPACE_PRV_START, LENGTH = CS0_SPACE_PRV_LENGTH
+    CS2_SPACE : ORIGIN = CS2_SPACE_PRV_START, LENGTH = CS2_SPACE_PRV_LENGTH
+    CS3_SPACE : ORIGIN = CS3_SPACE_PRV_START, LENGTH = CS3_SPACE_PRV_LENGTH
+    CS5_SPACE : ORIGIN = CS5_SPACE_PRV_START, LENGTH = CS5_SPACE_PRV_LENGTH
+    DUMMY     : ORIGIN = 0x00000040, LENGTH = 0x00000004
+}
+
+SECTIONS
+{
+    .loader_param 0x60000000 : AT (0x60000000)
+    {
+        KEEP(*(.loader_param))
+    } > xSPI0_CS0_SPACE
+    .flash_contents 0x6000004C : AT (0x6000004C)
+    {
+        _mloader_text = .;
+        . = . + (_loader_text_end - _loader_text_start);
+        _mloader_data = .;
+        . = . + (_loader_data_end - _loader_data_start);
+        _mfvector = .;
+        . = . + (_fvector_end - _fvector_start);
+        _mtext = .;
+        . = . + (_text_end - _text_start);
+        _mdummy = .;
+        . = . + (_dummy_end - _dummy_start);
+        _mdata = .;
+        . = . + (_data_end - _data_start);
+        flash_contents_end = .;
+    } > xSPI0_CS0_SPACE
+    .loader_text 0x00102000 : AT (_mloader_text)
+    {
+        _loader_text_start = .;
+        *(.loader_text)
+        */fsp/src/bsp/cmsis/Device/RENESAS/Source/*.o(.text*)
+        */fsp/src/bsp/mcu/all/bsp_clocks.o(.text*)
+        */fsp/src/bsp/mcu/all/bsp_irq.o(.text*)
+        */fsp/src/bsp/mcu/all/bsp_register_protection.o(.text*)
+        */fsp/src/r_ioport/r_ioport.o(.text*)
+        KEEP(*(.warm_start))
+        . = . + (512 - ((. - _loader_text_start) % 512));
+        _loader_text_end = .;
+    } > BTCM
+    .loader_data : AT (_mloader_data)
+    {
+        _loader_data_start = .;
+        __loader_data_start = .;
+        */fsp/src/bsp/cmsis/Device/RENESAS/Source/*.o(.data*)
+        */fsp/src/bsp/mcu/all/bsp_clocks.o(.data*)
+        */fsp/src/bsp/mcu/all/bsp_irq.o(.data*)
+        */fsp/src/bsp/mcu/all/bsp_register_protection.o(.data*)
+        */fsp/src/r_ioport/r_ioport.o(.data*)
+        . = ALIGN(4);
+        __loader_data_end = .;
+        __loader_bss_start = .;
+        */fsp/src/bsp/cmsis/Device/RENESAS/Source/*.o(.bss*)
+        */fsp/src/bsp/mcu/all/bsp_clocks.o(.bss*)
+        */fsp/src/bsp/mcu/all/bsp_irq.o(.bss*)
+        */fsp/src/bsp/mcu/all/bsp_register_protection.o(.bss*)
+        */fsp/src/r_ioport/r_ioport.o(.bss*)
+        */fsp/src/bsp/cmsis/Device/RENESAS/Source/*.o(COMMON)
+        */fsp/src/bsp/mcu/all/bsp_clocks.o(COMMON)
+        */fsp/src/bsp/mcu/all/bsp_irq.o(COMMON)
+        */fsp/src/bsp/mcu/all/bsp_register_protection.o(.COMMON)
+        */fsp/src/r_ioport/r_ioport.o(.COMMON)
+        . = ALIGN(4);
+        __loader_bss_end = . ;
+        _loader_data_end = .;
+    } > BTCM
+    .intvec 0x00000000 : AT (_mfvector)
+    {
+        _fvector_start = .;
+        KEEP(*(.intvec))
+        _fvector_end = .;
+    } > ATCM
+    .text 0x00000100 : AT (_mtext)
+    {
+        _text_start = .;
+        *(.text*)
+
+        KEEP(*(.init))
+        KEEP(*(.fini))
+
+        /* .ctors */
+        *crtbegin.o(.ctors)
+        *crtbegin?.o(.ctors)
+        *(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
+        *(SORT(.ctors.*))
+        *(.ctors)
+        _ctor_end = .;
+
+        /* .dtors */
+        *crtbegin.o(.dtors)
+        *crtbegin?.o(.dtors)
+        *(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
+        *(SORT(.dtors.*))
+        *(.dtors)
+        _dtor_end = .;
+
+        KEEP(*(.eh_frame*))
+    } > ATCM
+    .rvectors :
+    {
+        _rvectors_start = .;
+        KEEP(*(.rvectors))
+        _rvectors_end = .;
+    } > ATCM
+    .ARM.extab :
+    {
+        *(.ARM.extab* .gnu.linkonce.armextab.*)
+    } > ATCM
+    __exidx_start = .;
+    .ARM.exidx :
+    {
+        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+    } > ATCM
+    __exidx_end = .;
+    .got :
+    {
+        *(.got)
+        *(.got.plt)
+        . = ALIGN(4);
+        _text_end = .;
+    } > ATCM
+    .dummy :
+    {
+        _dummy_start = .;
+        KEEP(*(.dummy));
+        _dummy_end = .;
+    } > DUMMY
+    .data :  AT (_mdata)
+    {
+        _data_start = .;
+
+        *(vtable)
+        *(.data.*)
+        *(.data)
+
+        *(.rodata*)
+        _erodata = .;
+
+        . = ALIGN(4);
+        /* preinit data */
+        PROVIDE_HIDDEN (__preinit_array_start = .);
+        KEEP(*(.preinit_array))
+        PROVIDE_HIDDEN (__preinit_array_end = .);
+
+        . = ALIGN(4);
+        /* init data */
+        PROVIDE_HIDDEN (__init_array_start = .);
+        KEEP(*(SORT(.init_array.*)))
+        KEEP(*(.init_array))
+        PROVIDE_HIDDEN (__init_array_end = .);
+
+        . = ALIGN(4);
+        /* finit data */
+        PROVIDE_HIDDEN (__fini_array_start = .);
+        KEEP(*(SORT(.fini_array.*)))
+        KEEP(*(.fini_array))
+        PROVIDE_HIDDEN (__fini_array_end = .);
+
+        KEEP(*(.jcr*))
+
+        . = ALIGN(4);
+
+        /* All data end */
+        _data_end = .;
+    } > ATCM
+    .bss :
+    {
+        . = ALIGN(4);
+        __bss_start__ = .;
+        _bss = .;
+        *(.bss*)
+        *(COMMON)
+        . = ALIGN(4);
+        __bss_end__ = .;
+        _ebss = .;
+        _end = .;
+    } > ATCM
+    .heap (NOLOAD) :
+    {
+        . = ALIGN(8);
+        __HeapBase = .;
+        /* Place the STD heap here. */
+        KEEP(*(.heap))
+        __HeapLimit = .;
+    } > ATCM
+    .thread_stack (NOLOAD):
+    {
+        . = ALIGN(8);
+        __ThreadStackBase = .;
+        /* Place the Thread stacks here. */
+        KEEP(*(.stack*))
+        __ThreadStackLimit = .;
+    } > ATCM
+    .sys_stack (NOLOAD) :
+    {
+        . = ALIGN(8);
+        __SysStackBase = .;
+        /* Place the sys_stack here. */
+        KEEP(*(.sys_stack))
+        __SysStackLimit = .;
+    } > BTCM
+    .svc_stack (NOLOAD) :
+    {
+        . = ALIGN(8);
+        __SvcStackBase = .;
+        /* Place the svc_stack here. */
+        KEEP(*(.svc_stack))
+        __SvcStackLimit = .;
+    } > BTCM
+    .irq_stack (NOLOAD) :
+    {
+        . = ALIGN(8);
+        __IrqStackBase = .;
+        /* Place the irq_stack here. */
+        KEEP(*(.irq_stack))
+        __IrqStackLimit = .;
+    } > BTCM
+    .fiq_stack (NOLOAD) :
+    {
+        . = ALIGN(8);
+        __FiqStackBase = .;
+        /* Place the fiq_stack here. */
+        KEEP(*(.fiq_stack))
+        __FiqStackLimit = .;
+    } > BTCM
+    .und_stack (NOLOAD) :
+    {
+        . = ALIGN(8);
+        __UndStackBase = .;
+        /* Place the und_stack here. */
+        KEEP(*(.und_stack))
+        __UndStackLimit = .;
+    } > BTCM
+    .abt_stack (NOLOAD) :
+    {
+        . = ALIGN(8);
+        __AbtStackBase = .;
+        /* Place the abt_stack here. */
+        KEEP(*(.abt_stack))
+        __AbtStackLimit = .;
+    } > BTCM
+    .dmac_link_mode DMAC_LINK_MODE_START : AT (DMAC_LINK_MODE_START)
+    {
+        . = ALIGN(4);
+        _DmacLinkMode_start = .;
+        KEEP(*(.dmac_link_mode*))
+        _DmacLinkMode_end = .;
+    } > SYSTEM_RAM_MIRROR
+    .shared_noncache_buffer SHARED_NONCACHE_BUFFER_START : AT (SHARED_NONCACHE_BUFFER_START)
+    {
+        . = ALIGN(32);
+        _sncbuffer_start = .;
+        KEEP(*(.shared_noncache_buffer*))
+        _sncbuffer_end = .;
+    } > SYSTEM_RAM_MIRROR
+    .noncache_buffer NONCACHE_BUFFER_START : AT (NONCACHE_BUFFER_START)
+    {
+        . = ALIGN(32);
+        _ncbuffer_start = .;
+        KEEP(*(.noncache_buffer*))
+        _ncbuffer_end = .;
+    } > SYSTEM_RAM_MIRROR
+}
+
