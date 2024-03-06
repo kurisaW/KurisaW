@@ -153,6 +153,48 @@ SECTIONS
         KEEP(*(.init))
         KEEP(*(.fini))
 
+        /* section information for utest */
+        . = ALIGN(4);
+        __rt_utest_tc_tab_start = .;
+        KEEP(*(UtestTcTab))
+        __rt_utest_tc_tab_end = .;
+
+		/* section information for finsh shell */
+		. = ALIGN(4);
+		__fsymtab_start = .;
+		KEEP(*(FSymTab))
+		__fsymtab_end = .;
+		
+		. = ALIGN(4);
+		__vsymtab_start = .;
+		KEEP(*(VSymTab))
+		__vsymtab_end = .;
+		
+		/* section information for initial. */
+		. = ALIGN(4);
+		__rt_init_start = .;
+		KEEP(*(SORT(.rti_fn*)))
+		__rt_init_end = .;
+		
+		. = ALIGN(4);
+		KEEP(*(FalPartTable))
+
+        /* new GCC version uses .init_array */
+        PROVIDE(__ctors_start__ = .);
+        KEEP (*(SORT(.init_array.*)))
+        KEEP (*(.init_array))
+        PROVIDE(__ctors_end__ = .);
+
+        . = ALIGN(4);
+
+        /* .data section which is used for initialized data */
+        PROVIDE(__dtors_start__ = .);
+        KEEP(*(SORT(.dtors.*)))
+        KEEP(*(.dtors))
+        PROVIDE(__dtors_end__ = .);
+
+        . = ALIGN(4);
+
         /* .ctors */
         *crtbegin.o(.ctors)
         *crtbegin?.o(.ctors)
@@ -185,7 +227,7 @@ SECTIONS
     .ARM.exidx :
     {
         *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    } > ATCM
+    } > SYSTEM_RAM_MIRROR
     __exidx_end = .;
     .got :
     {
@@ -199,7 +241,7 @@ SECTIONS
         _dummy_start = .;
         KEEP(*(.dummy));
         _dummy_end = .;
-    } > DUMMY
+    } > SYSTEM_RAM_MIRROR
     .data :  AT (_mdata)
     {
         _data_start = .;
@@ -237,7 +279,7 @@ SECTIONS
 
         /* All data end */
         _data_end = .;
-    } > ATCM
+    } > BTCM
     .bss :
     {
         . = ALIGN(4);
@@ -249,7 +291,7 @@ SECTIONS
         __bss_end__ = .;
         _ebss = .;
         _end = .;
-    } > ATCM
+    } > BTCM
     .heap (NOLOAD) :
     {
         . = ALIGN(8);
@@ -257,7 +299,7 @@ SECTIONS
         /* Place the STD heap here. */
         KEEP(*(.heap))
         __HeapLimit = .;
-    } > ATCM
+    } > BTCM
     .thread_stack (NOLOAD):
     {
         . = ALIGN(8);
@@ -265,7 +307,7 @@ SECTIONS
         /* Place the Thread stacks here. */
         KEEP(*(.stack*))
         __ThreadStackLimit = .;
-    } > ATCM
+    } > BTCM
     .sys_stack (NOLOAD) :
     {
         . = ALIGN(8);
