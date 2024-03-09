@@ -1,381 +1,251 @@
 /*
-                  Linker File for Renesas RZ/N2L FSP
-*/
+ * Copyright (c) 2006-2022, RT-Thread Development Team
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Change Logs:
+ * Date       Author       Notes
+ * 2009-01-20     Bernard      first version
+ * 2011-07-22     Bernard      added thumb mode porting
+ * 2013-05-24     Grissiom     port to CCS
+ * 2013-05-26     Grissiom     optimize for ARMv7
+ * 2013-10-20     Grissiom     port to GCC
+ */
 
-INCLUDE memory_regions.ld
+//#include <rtconfig.h>
 
-/* The memory information for each device is done in memory regions file.
- * The starting address and length of memory not defined in memory regions file are defined as 0. */
+   .text
+   .arm
+   .globl rt_thread_switch_interrupt_flag
+   .globl rt_interrupt_from_thread
+   .globl rt_interrupt_to_thread
+   .globl rt_interrupt_enter
+   .globl rt_interrupt_leave
+   .globl rt_hw_trap_irq
 
-ATCM_PRV_START = DEFINED(ATCM_START) ? ATCM_START : 0;
-ATCM_PRV_LENGTH = DEFINED(ATCM_LENGTH) ? ATCM_LENGTH : 0;
-BTCM_PRV_START = DEFINED(BTCM_START) ? BTCM_START : 0;
-BTCM_PRV_LENGTH = DEFINED(BTCM_LENGTH) ? BTCM_LENGTH : 0;
-SYSTEM_RAM_PRV_START = DEFINED(SYSTEM_RAM_START) ? SYSTEM_RAM_START : 0;
-SYSTEM_RAM_PRV_LENGTH = DEFINED(SYSTEM_RAM_LENGTH) ? SYSTEM_RAM_LENGTH : 0;
-SYSTEM_RAM_MIRROR_PRV_START = DEFINED(SYSTEM_RAM_MIRROR_START) ? SYSTEM_RAM_MIRROR_START : 0;
-SYSTEM_RAM_MIRROR_PRV_LENGTH = DEFINED(SYSTEM_RAM_MIRROR_LENGTH) ? SYSTEM_RAM_MIRROR_LENGTH : 0;
-xSPI0_CS0_SPACE_MIRROR_PRV_START = DEFINED(xSPI0_CS0_SPACE_MIRROR_START) ? xSPI0_CS0_SPACE_MIRROR_START : 0;
-xSPI0_CS0_SPACE_MIRROR_PRV_LENGTH = DEFINED(xSPI0_CS0_SPACE_MIRROR_LENGTH) ? xSPI0_CS0_SPACE_MIRROR_LENGTH : 0;
-xSPI0_CS1_SPACE_MIRROR_PRV_START = DEFINED(xSPI0_CS1_SPACE_MIRROR_START) ? xSPI0_CS1_SPACE_MIRROR_START : 0;
-xSPI0_CS1_SPACE_MIRROR_PRV_LENGTH = DEFINED(xSPI0_CS1_SPACE_MIRROR_LENGTH) ? xSPI0_CS1_SPACE_MIRROR_LENGTH : 0;
-xSPI1_CS0_SPACE_MIRROR_PRV_START = DEFINED(xSPI1_CS0_SPACE_MIRROR_START) ? xSPI1_CS0_SPACE_MIRROR_START : 0;
-xSPI1_CS0_SPACE_MIRROR_PRV_LENGTH = DEFINED(xSPI1_CS0_SPACE_MIRROR_LENGTH) ? xSPI1_CS0_SPACE_MIRROR_LENGTH : 0;
-xSPI1_CS1_SPACE_MIRROR_PRV_START = DEFINED(xSPI1_CS1_SPACE_MIRROR_START) ? xSPI1_CS1_SPACE_MIRROR_START : 0;
-xSPI1_CS1_SPACE_MIRROR_PRV_LENGTH = DEFINED(xSPI1_CS1_SPACE_MIRROR_LENGTH) ? xSPI1_CS1_SPACE_MIRROR_LENGTH : 0;
-CS0_SPACE_MIRROR_PRV_START = DEFINED(CS0_SPACE_MIRROR_START) ? CS0_SPACE_MIRROR_START : 0;
-CS0_SPACE_MIRROR_PRV_LENGTH = DEFINED(CS0_SPACE_MIRROR_LENGTH) ? CS0_SPACE_MIRROR_LENGTH : 0;
-CS2_SPACE_MIRROR_PRV_START = DEFINED(CS2_SPACE_MIRROR_START) ? CS2_SPACE_MIRROR_START : 0;
-CS2_SPACE_MIRROR_PRV_LENGTH = DEFINED(CS2_SPACE_MIRROR_LENGTH) ? CS2_SPACE_MIRROR_LENGTH : 0;
-CS3_SPACE_MIRROR_PRV_START = DEFINED(CS3_SPACE_MIRROR_START) ? CS3_SPACE_MIRROR_START : 0;
-CS3_SPACE_MIRROR_PRV_LENGTH = DEFINED(CS3_SPACE_MIRROR_LENGTH) ? CS3_SPACE_MIRROR_LENGTH : 0;
-CS5_SPACE_MIRROR_PRV_START = DEFINED(CS5_SPACE_MIRROR_START) ? CS5_SPACE_MIRROR_START : 0;
-CS5_SPACE_MIRROR_PRV_LENGTH = DEFINED(CS5_SPACE_MIRROR_LENGTH) ? CS5_SPACE_MIRROR_LENGTH : 0;
-xSPI0_CS0_SPACE_PRV_START = DEFINED(xSPI0_CS0_SPACE_START) ? xSPI0_CS0_SPACE_START : 0;
-xSPI0_CS0_SPACE_PRV_LENGTH = DEFINED(xSPI0_CS0_SPACE_LENGTH) ? xSPI0_CS0_SPACE_LENGTH : 0;
-xSPI0_CS1_SPACE_PRV_START = DEFINED(xSPI0_CS1_SPACE_START) ? xSPI0_CS1_SPACE_START : 0;
-xSPI0_CS1_SPACE_PRV_LENGTH = DEFINED(xSPI0_CS1_SPACE_LENGTH) ? xSPI0_CS1_SPACE_LENGTH : 0;
-xSPI1_CS0_SPACE_PRV_START = DEFINED(xSPI1_CS0_SPACE_START) ? xSPI1_CS0_SPACE_START : 0;
-xSPI1_CS0_SPACE_PRV_LENGTH = DEFINED(xSPI1_CS0_SPACE_LENGTH) ? xSPI1_CS0_SPACE_LENGTH : 0;
-xSPI1_CS1_SPACE_PRV_START = DEFINED(xSPI1_CS1_SPACE_START) ? xSPI1_CS1_SPACE_START : 0;
-xSPI1_CS1_SPACE_PRV_LENGTH = DEFINED(xSPI1_CS1_SPACE_LENGTH) ? xSPI1_CS1_SPACE_LENGTH : 0;
-CS0_SPACE_PRV_START = DEFINED(CS0_SPACE_START) ? CS0_SPACE_START : 0;
-CS0_SPACE_PRV_LENGTH = DEFINED(CS0_SPACE_LENGTH) ? CS0_SPACE_LENGTH : 0;
-CS2_SPACE_PRV_START = DEFINED(CS2_SPACE_START) ? CS2_SPACE_START : 0;
-CS2_SPACE_PRV_LENGTH = DEFINED(CS2_SPACE_LENGTH) ? CS2_SPACE_LENGTH : 0;
-CS3_SPACE_PRV_START = DEFINED(CS3_SPACE_START) ? CS3_SPACE_START : 0;
-CS3_SPACE_PRV_LENGTH = DEFINED(CS3_SPACE_LENGTH) ? CS3_SPACE_LENGTH : 0;
-CS5_SPACE_PRV_START = DEFINED(CS5_SPACE_START) ? CS5_SPACE_START : 0;
-CS5_SPACE_PRV_LENGTH = DEFINED(CS5_SPACE_LENGTH) ? CS5_SPACE_LENGTH : 0;
+/*
+ * rt_base_t rt_hw_interrupt_disable()
+ */
+    .globl rt_hw_interrupt_disable
+rt_hw_interrupt_disable:
+    MRS r0, cpsr
+    CPSID IF
+    BX  lr
 
-/* Define starting addresses for DMAC link mode data, CPU-shared non-cache, and CPU-specific non-cache areas. */
-DMAC_LINK_MODE_START = DEFINED(SYSTEM_RAM_MIRROR_START) ? SYSTEM_RAM_MIRROR_START + SYSTEM_RAM_MIRROR_LENGTH - 0x00044000 : 0;
-SHARED_NONCACHE_BUFFER_START = DEFINED(SYSTEM_RAM_MIRROR_START) ? SYSTEM_RAM_MIRROR_START + SYSTEM_RAM_MIRROR_LENGTH - 0x00040000 : 0;
-NONCACHE_BUFFER_START = DEFINED(SYSTEM_RAM_MIRROR_START) ? SYSTEM_RAM_MIRROR_START + SYSTEM_RAM_MIRROR_LENGTH - 0x00020000 : 0;
+/*
+ * void rt_hw_interrupt_enable(rt_base_t level)
+ */
+    .globl rt_hw_interrupt_enable
+rt_hw_interrupt_enable:
+    MSR cpsr_c, r0
+    BX  lr
 
-MEMORY
-{
-    ATCM : ORIGIN = ATCM_PRV_START, LENGTH = ATCM_PRV_LENGTH
-    BTCM : ORIGIN = BTCM_PRV_START, LENGTH = BTCM_PRV_LENGTH
-    SYSTEM_RAM : ORIGIN = SYSTEM_RAM_PRV_START, LENGTH = SYSTEM_RAM_PRV_LENGTH
-    SYSTEM_RAM_MIRROR : ORIGIN = SYSTEM_RAM_MIRROR_PRV_START, LENGTH = SYSTEM_RAM_MIRROR_PRV_LENGTH
-    xSPI0_CS0_SPACE_MIRROR : ORIGIN = xSPI0_CS0_SPACE_MIRROR_PRV_START, LENGTH = xSPI0_CS0_SPACE_MIRROR_PRV_LENGTH
-    xSPI0_CS1_SPACE_MIRROR : ORIGIN = xSPI0_CS1_SPACE_MIRROR_PRV_START, LENGTH = xSPI0_CS1_SPACE_MIRROR_PRV_LENGTH
-    xSPI1_CS0_SPACE_MIRROR : ORIGIN = xSPI1_CS0_SPACE_MIRROR_PRV_START, LENGTH = xSPI1_CS0_SPACE_MIRROR_PRV_LENGTH
-    xSPI1_CS1_SPACE_MIRROR : ORIGIN = xSPI1_CS1_SPACE_MIRROR_PRV_START, LENGTH = xSPI1_CS1_SPACE_MIRROR_PRV_LENGTH
-    CS0_SPACE_MIRROR : ORIGIN = CS0_SPACE_MIRROR_PRV_START, LENGTH = CS0_SPACE_MIRROR_PRV_LENGTH
-    CS2_SPACE_MIRROR : ORIGIN = CS2_SPACE_MIRROR_PRV_START, LENGTH = CS2_SPACE_MIRROR_PRV_LENGTH
-    CS3_SPACE_MIRROR : ORIGIN = CS3_SPACE_MIRROR_PRV_START, LENGTH = CS3_SPACE_MIRROR_PRV_LENGTH
-    CS5_SPACE_MIRROR : ORIGIN = CS5_SPACE_MIRROR_PRV_START, LENGTH = CS5_SPACE_MIRROR_PRV_LENGTH
-    xSPI0_CS0_SPACE : ORIGIN = xSPI0_CS0_SPACE_PRV_START, LENGTH = xSPI0_CS0_SPACE_PRV_LENGTH
-    xSPI0_CS1_SPACE : ORIGIN = xSPI0_CS1_SPACE_PRV_START, LENGTH = xSPI0_CS1_SPACE_PRV_LENGTH
-    xSPI1_CS0_SPACE : ORIGIN = xSPI1_CS0_SPACE_PRV_START, LENGTH = xSPI1_CS0_SPACE_PRV_LENGTH
-    xSPI1_CS1_SPACE : ORIGIN = xSPI1_CS1_SPACE_PRV_START, LENGTH = xSPI1_CS1_SPACE_PRV_LENGTH
-    CS0_SPACE : ORIGIN = CS0_SPACE_PRV_START, LENGTH = CS0_SPACE_PRV_LENGTH
-    CS2_SPACE : ORIGIN = CS2_SPACE_PRV_START, LENGTH = CS2_SPACE_PRV_LENGTH
-    CS3_SPACE : ORIGIN = CS3_SPACE_PRV_START, LENGTH = CS3_SPACE_PRV_LENGTH
-    CS5_SPACE : ORIGIN = CS5_SPACE_PRV_START, LENGTH = CS5_SPACE_PRV_LENGTH
-    DUMMY     : ORIGIN = 0x00000040, LENGTH = 0x00000004
-}
+/*
+ * void rt_hw_context_switch(rt_uint32 from, rt_uint32 to)
+ * r0 --> from
+ * r1 --> to
+ */
+    .globl rt_hw_context_switch
+rt_hw_context_switch:
+    STMDB   sp!, {lr}           @ push pc (lr should be pushed in place of PC)
+    STMDB   sp!, {r0-r12, lr}   @ push lr & register file
 
-SECTIONS
-{
-    .loader_param 0x60000000 : AT (0x60000000)
-    {
-        KEEP(*(.loader_param))
-    } > xSPI0_CS0_SPACE
-    .flash_contents 0x6000004C : AT (0x6000004C)
-    {
-        _mloader_text = .;
-        . = . + (_loader_text_end - _loader_text_start);
-        _mloader_data = .;
-        . = . + (_loader_data_end - _loader_data_start);
-        _mfvector = .;
-        . = . + (_fvector_end - _fvector_start);
-        _mtext = .;
-        . = . + (_text_end - _text_start);
-        _mdummy = .;
-        . = . + (_dummy_end - _dummy_start);
-        _mdata = .;
-        . = . + (_data_end - _data_start);
-        flash_contents_end = .;
-    } > xSPI0_CS0_SPACE
-    .loader_text 0x00102000 : AT (_mloader_text)
-    {
-        _loader_text_start = .;
-        *(.loader_text)
-        */fsp/src/bsp/cmsis/Device/RENESAS/Source/*.o(.text*)
-        */fsp/src/bsp/mcu/all/bsp_clocks.o(.text*)
-        */fsp/src/bsp/mcu/all/bsp_irq.o(.text*)
-        */fsp/src/bsp/mcu/all/bsp_register_protection.o(.text*)
-        */fsp/src/r_ioport/r_ioport.o(.text*)
-        KEEP(*(.warm_start))
-        . = . + (512 - ((. - _loader_text_start) % 512));
-        _loader_text_end = .;
-    } > BTCM
-    .loader_data : AT (_mloader_data)
-    {
-        _loader_data_start = .;
-        __loader_data_start = .;
-        */fsp/src/bsp/cmsis/Device/RENESAS/Source/*.o(.data*)
-        */fsp/src/bsp/mcu/all/bsp_clocks.o(.data*)
-        */fsp/src/bsp/mcu/all/bsp_irq.o(.data*)
-        */fsp/src/bsp/mcu/all/bsp_register_protection.o(.data*)
-        */fsp/src/r_ioport/r_ioport.o(.data*)
-        . = ALIGN(4);
-        __loader_data_end = .;
-        __loader_bss_start = .;
-        */fsp/src/bsp/cmsis/Device/RENESAS/Source/*.o(.bss*)
-        */fsp/src/bsp/mcu/all/bsp_clocks.o(.bss*)
-        */fsp/src/bsp/mcu/all/bsp_irq.o(.bss*)
-        */fsp/src/bsp/mcu/all/bsp_register_protection.o(.bss*)
-        */fsp/src/r_ioport/r_ioport.o(.bss*)
-        */fsp/src/bsp/cmsis/Device/RENESAS/Source/*.o(COMMON)
-        */fsp/src/bsp/mcu/all/bsp_clocks.o(COMMON)
-        */fsp/src/bsp/mcu/all/bsp_irq.o(COMMON)
-        */fsp/src/bsp/mcu/all/bsp_register_protection.o(.COMMON)
-        */fsp/src/r_ioport/r_ioport.o(.COMMON)
-        . = ALIGN(4);
-        __loader_bss_end = . ;
-        _loader_data_end = .;
-    } > BTCM
-    .intvec 0x00000000 : AT (_mfvector)
-    {
-        _fvector_start = .;
-        KEEP(*(.intvec))
-        _fvector_end = .;
-    } > ATCM
-    .text 0x00000100 : AT (_mtext)
-    {
-        _text_start = .;
-        *(.text*)
+    MRS     r4, cpsr
+    TST     lr, #0x01
+    ORRNE   r4, r4, #0x20       @ it's thumb code
 
-        KEEP(*(.init))
-        KEEP(*(.fini))
+    STMDB   sp!, {r4}           @ push cpsr
 
-        /* section information for utest */
-        . = ALIGN(4);
-        __rt_utest_tc_tab_start = .;
-        KEEP(*(UtestTcTab))
-        __rt_utest_tc_tab_end = .;
+#if defined (__VFP_FP__) && !defined(__SOFTFP__) && defined(RT_VFP_LAZY_STACKING)
+        VMRS    r4,  fpexc
+        TST     r4,  #0x40000000
+        BEQ     __no_vfp_frame1
+        VSTMDB  sp!, {d0-d15}
+        VMRS    r5, fpscr
+        @ TODO: add support for Common VFPv3.
+        @       Save registers like FPINST, FPINST2
+        STMDB   sp!, {r5}
+__no_vfp_frame1:
+        STMDB   sp!, {r4}
+#endif
 
-		/* section information for finsh shell */
-		. = ALIGN(4);
-		__fsymtab_start = .;
-		KEEP(*(FSymTab))
-		__fsymtab_end = .;
-		
-		. = ALIGN(4);
-		__vsymtab_start = .;
-		KEEP(*(VSymTab))
-		__vsymtab_end = .;
-		
-		/* section information for initial. */
-		. = ALIGN(4);
-		__rt_init_start = .;
-		KEEP(*(SORT(.rti_fn*)))
-		__rt_init_end = .;
-		
-		. = ALIGN(4);
-		KEEP(*(FalPartTable))
+    STR     sp, [r0]            @ store sp in preempted tasks TCB
+    LDR     sp, [r1]            @ get new task stack pointer
 
-        /* new GCC version uses .init_array */
-        PROVIDE(__ctors_start__ = .);
-        KEEP (*(SORT(.init_array.*)))
-        KEEP (*(.init_array))
-        PROVIDE(__ctors_end__ = .);
+#if defined (__VFP_FP__) && !defined(__SOFTFP__) && defined(RT_VFP_LAZY_STACKING)
+        LDMIA   sp!, {r0}       @ get fpexc
+        VMSR    fpexc,  r0      @ restore fpexc
+        TST     r0,  #0x40000000
+        BEQ     __no_vfp_frame2
+        LDMIA   sp!, {r1}       @ get fpscr
+        VMSR    fpscr, r1
+        VLDMIA  sp!, {d0-d15}
+__no_vfp_frame2:
+    #endif
 
-        . = ALIGN(4);
+    LDMIA   sp!, {r4}           @ pop new task cpsr to spsr
+    MSR     spsr_cxsf, r4
 
-        /* .data section which is used for initialized data */
-        PROVIDE(__dtors_start__ = .);
-        KEEP(*(SORT(.dtors.*)))
-        KEEP(*(.dtors))
-        PROVIDE(__dtors_end__ = .);
+    LDMIA   sp!, {r0-r12, lr, pc}^ @ pop new task r0-r12, lr & pc, copy spsr to cpsr
 
-        . = ALIGN(4);
+/*
+ * void rt_hw_context_switch_to(rt_uint32 to)
+ * r0 --> to
+ */
+    .globl rt_hw_context_switch_to
+rt_hw_context_switch_to:
+    LDR     sp, [r0]            @ get new task stack pointer
 
-        /* .ctors */
-        *crtbegin.o(.ctors)
-        *crtbegin?.o(.ctors)
-        *(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
-        *(SORT(.ctors.*))
-        *(.ctors)
-        _ctor_end = .;
+#if defined (__VFP_FP__) && !defined(__SOFTFP__) && defined(RT_VFP_LAZY_STACKING)
+        LDMIA   sp!, {r0}       @ get fpexc
+        VMSR    fpexc, r0
+        TST     r0,  #0x40000000
+        BEQ     __no_vfp_frame_to
+        LDMIA   sp!, {r1}       @ get fpscr
+        VMSR    fpscr, r1
+        VLDMIA  sp!, {d0-d15}
+__no_vfp_frame_to:
+#endif
 
-        /* .dtors */
-        *crtbegin.o(.dtors)
-        *crtbegin?.o(.dtors)
-        *(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
-        *(SORT(.dtors.*))
-        *(.dtors)
-        _dtor_end = .;
+    LDMIA   sp!, {r4}           @ pop new task cpsr to spsr
+    MSR     spsr_cxsf, r4
 
-        KEEP(*(.eh_frame*))
-    } > ATCM
-    .rvectors :
-    {
-        _rvectors_start = .;
-        KEEP(*(.rvectors))
-        _rvectors_end = .;
-    } > ATCM
-    .ARM.extab :
-    {
-        *(.ARM.extab* .gnu.linkonce.armextab.*)
-    } > ATCM
-    __exidx_start = .;
-    .ARM.exidx :
-    {
-        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    } > SYSTEM_RAM_MIRROR
-    __exidx_end = .;
-    .got :
-    {
-        *(.got)
-        *(.got.plt)
-        . = ALIGN(4);
-        _text_end = .;
-    } > ATCM
-    .dummy :
-    {
-        _dummy_start = .;
-        KEEP(*(.dummy));
-        _dummy_end = .;
-    } > SYSTEM_RAM_MIRROR
-    .data :  AT (_mdata)
-    {
-        _data_start = .;
+    LDMIA   sp!, {r0-r12, lr, pc}^ @ pop new task r0-r12, lr & pc, copy spsr to cpsr
 
-        *(vtable)
-        *(.data.*)
-        *(.data)
+/*
+ * void rt_hw_context_switch_interrupt(rt_uint32 from, rt_uint32 to)@
+ */
 
-        *(.rodata*)
-        _erodata = .;
+    .globl rt_hw_context_switch_interrupt
+rt_hw_context_switch_interrupt:
+    LDR r2, =rt_thread_switch_interrupt_flag
+    LDR r3, [r2]
+    CMP r3, #1
+    BEQ _reswitch
+    MOV r3, #1              @ set rt_thread_switch_interrupt_flag to 1
+    STR r3, [r2]
+    LDR r2, =rt_interrupt_from_thread  @ set rt_interrupt_from_thread
 
-        . = ALIGN(4);
-        /* preinit data */
-        PROVIDE_HIDDEN (__preinit_array_start = .);
-        KEEP(*(.preinit_array))
-        PROVIDE_HIDDEN (__preinit_array_end = .);
+    STR r0, [r2]
+_reswitch:
+    LDR r2, =rt_interrupt_to_thread       @ set rt_interrupt_to_thread
+    STR r1, [r2]
+    BX  lr
 
-        . = ALIGN(4);
-        /* init data */
-        PROVIDE_HIDDEN (__init_array_start = .);
-        KEEP(*(SORT(.init_array.*)))
-        KEEP(*(.init_array))
-        PROVIDE_HIDDEN (__init_array_end = .);
+    .globl IRQ_Handler
+IRQ_Handler:
+    STMDB   sp!, {r0-r12,lr}
 
-        . = ALIGN(4);
-        /* finit data */
-        PROVIDE_HIDDEN (__fini_array_start = .);
-        KEEP(*(SORT(.fini_array.*)))
-        KEEP(*(.fini_array))
-        PROVIDE_HIDDEN (__fini_array_end = .);
+#if defined (__VFP_FP__) && !defined(__SOFTFP__) && defined(RT_VFP_LAZY_STACKING)
+        VMRS    r0,  fpexc
+        TST     r0,  #0x40000000
+        BEQ     __no_vfp_frame_str_irq
+        VSTMDB  sp!, {d0-d15}
+        VMRS    r1, fpscr
+        @ TODO: add support for Common VFPv3.
+        @       Save registers like FPINST, FPINST2
+        STMDB   sp!, {r1}
+__no_vfp_frame_str_irq:
+        STMDB   sp!, {r0}
+#endif
 
-        KEEP(*(.jcr*))
+    BL  rt_interrupt_enter
+    BL  rt_hw_trap_irq
+    BL  rt_interrupt_leave
 
-        . = ALIGN(4);
+    @ if rt_thread_switch_interrupt_flag set, jump to
+    @ rt_hw_context_switch_interrupt_do and don't return
+    LDR r0, =rt_thread_switch_interrupt_flag
+    LDR r1, [r0]
+    CMP r1, #1
+    BEQ rt_hw_context_switch_interrupt_do
 
-        /* All data end */
-        _data_end = .;
-    } > BTCM
-    .bss :
-    {
-        . = ALIGN(4);
-        __bss_start__ = .;
-        _bss = .;
-        *(.bss*)
-        *(COMMON)
-        . = ALIGN(4);
-        __bss_end__ = .;
-        _ebss = .;
-        _end = .;
-    } > BTCM
-    .heap (NOLOAD) :
-    {
-        . = ALIGN(8);
-        __HeapBase = .;
-        /* Place the STD heap here. */
-        KEEP(*(.heap))
-        __HeapLimit = .;
-    } > BTCM
-    .thread_stack (NOLOAD):
-    {
-        . = ALIGN(8);
-        __ThreadStackBase = .;
-        /* Place the Thread stacks here. */
-        KEEP(*(.stack*))
-        __ThreadStackLimit = .;
-    } > BTCM
-    .sys_stack (NOLOAD) :
-    {
-        . = ALIGN(8);
-        __SysStackBase = .;
-        /* Place the sys_stack here. */
-        KEEP(*(.sys_stack))
-        __SysStackLimit = .;
-    } > BTCM
-    .svc_stack (NOLOAD) :
-    {
-        . = ALIGN(8);
-        __SvcStackBase = .;
-        /* Place the svc_stack here. */
-        KEEP(*(.svc_stack))
-        __SvcStackLimit = .;
-    } > BTCM
-    .irq_stack (NOLOAD) :
-    {
-        . = ALIGN(8);
-        __IrqStackBase = .;
-        /* Place the irq_stack here. */
-        KEEP(*(.irq_stack))
-        __IrqStackLimit = .;
-    } > BTCM
-    .fiq_stack (NOLOAD) :
-    {
-        . = ALIGN(8);
-        __FiqStackBase = .;
-        /* Place the fiq_stack here. */
-        KEEP(*(.fiq_stack))
-        __FiqStackLimit = .;
-    } > BTCM
-    .und_stack (NOLOAD) :
-    {
-        . = ALIGN(8);
-        __UndStackBase = .;
-        /* Place the und_stack here. */
-        KEEP(*(.und_stack))
-        __UndStackLimit = .;
-    } > BTCM
-    .abt_stack (NOLOAD) :
-    {
-        . = ALIGN(8);
-        __AbtStackBase = .;
-        /* Place the abt_stack here. */
-        KEEP(*(.abt_stack))
-        __AbtStackLimit = .;
-    } > BTCM
-    .dmac_link_mode DMAC_LINK_MODE_START : AT (DMAC_LINK_MODE_START)
-    {
-        . = ALIGN(4);
-        _DmacLinkMode_start = .;
-        KEEP(*(.dmac_link_mode*))
-        _DmacLinkMode_end = .;
-    } > SYSTEM_RAM_MIRROR
-    .shared_noncache_buffer SHARED_NONCACHE_BUFFER_START : AT (SHARED_NONCACHE_BUFFER_START)
-    {
-        . = ALIGN(32);
-        _sncbuffer_start = .;
-        KEEP(*(.shared_noncache_buffer*))
-        _sncbuffer_end = .;
-    } > SYSTEM_RAM_MIRROR
-    .noncache_buffer NONCACHE_BUFFER_START : AT (NONCACHE_BUFFER_START)
-    {
-        . = ALIGN(32);
-        _ncbuffer_start = .;
-        KEEP(*(.noncache_buffer*))
-        _ncbuffer_end = .;
-    } > SYSTEM_RAM_MIRROR
-}
+#if defined (__VFP_FP__) && !defined(__SOFTFP__) && defined(RT_VFP_LAZY_STACKING)
+        LDMIA   sp!, {r0}       @ get fpexc
+        VMSR    fpexc, r0
+        TST     r0,  #0x40000000
+        BEQ     __no_vfp_frame_ldr_irq
+        LDMIA   sp!, {r1}       @ get fpscr
+        VMSR    fpscr, r1
+        VLDMIA  sp!, {d0-d15}
+__no_vfp_frame_ldr_irq:
+#endif
+
+    LDMIA   sp!, {r0-r12,lr}
+    SUBS    pc, lr, #4
+
+/*
+ * void rt_hw_context_switch_interrupt_do(rt_base_t flag)
+ */
+    .globl rt_hw_context_switch_interrupt_do
+rt_hw_context_switch_interrupt_do:
+    MOV     r1,  #0           @ clear flag
+    STR     r1,  [r0]
+
+#if defined (__VFP_FP__) && !defined(__SOFTFP__) && defined(RT_VFP_LAZY_STACKING)
+        LDMIA   sp!, {r0}       @ get fpexc
+        VMSR    fpexc, r0
+        TST     r0,  #0x40000000
+        BEQ     __no_vfp_frame_do1
+        LDMIA   sp!, {r1}       @ get fpscr
+        VMSR    fpscr, r1
+        VLDMIA  sp!, {d0-d15}
+__no_vfp_frame_do1:
+#endif
+
+    LDMIA   sp!, {r0-r12,lr}  @ reload saved registers
+    STMDB   sp, {r0-r3}       @ save r0-r3. We will restore r0-r3 in the SVC
+                              @ mode so there is no need to update SP.
+    SUB     r1,  sp, #16      @ save the right SP value in r1, so we could restore r0-r3.
+    SUB     r2,  lr, #4       @ save old task's pc to r2
+
+    MRS     r3,  spsr         @ get cpsr of interrupt thread
+
+    @ switch to SVC mode and no interrupt
+    CPSID   IF, #0x13
+
+    STMDB   sp!, {r2}         @ push old task's pc
+    STMDB   sp!, {r4-r12,lr}  @ push old task's lr,r12-r4
+    LDMIA   r1!, {r4-r7}      @ restore r0-r3 of the interrupted thread
+    STMDB   sp!, {r4-r7}      @ push old task's r3-r0. We don't need to push/pop them to
+                              @ r0-r3 because we just want to transfer the data and don't
+                              @ use them here.
+    STMDB   sp!, {r3}         @ push old task's cpsr
+
+#if defined (__VFP_FP__) && !defined(__SOFTFP__) && defined(RT_VFP_LAZY_STACKING)
+        VMRS    r0,  fpexc
+        TST     r0,  #0x40000000
+        BEQ     __no_vfp_frame_do2
+        VSTMDB  sp!, {d0-d15}
+        VMRS    r1, fpscr
+        @ TODO: add support for Common VFPv3.
+        @       Save registers like FPINST, FPINST2
+        STMDB   sp!, {r1}
+__no_vfp_frame_do2:
+        STMDB   sp!, {r0}
+#endif
+
+    LDR     r4,  =rt_interrupt_from_thread
+    LDR     r5,  [r4]
+    STR     sp,  [r5]         @ store sp in preempted tasks's TCB
+
+    LDR     r6,  =rt_interrupt_to_thread
+    LDR     r6,  [r6]
+    LDR     sp,  [r6]         @ get new task's stack pointer
+
+#if defined (__VFP_FP__) && !defined(__SOFTFP__) && defined(RT_VFP_LAZY_STACKING)
+        LDMIA   sp!, {r0}       @ get fpexc
+        VMSR    fpexc, r0
+        TST     r0,  #0x40000000
+        BEQ     __no_vfp_frame_do3
+        LDMIA   sp!, {r1}       @ get fpscr
+        VMSR    fpscr, r1
+        VLDMIA  sp!, {d0-d15}
+__no_vfp_frame_do3:
+#endif
+
+    LDMIA   sp!, {r4}         @ pop new task's cpsr to spsr
+    MSR     spsr_cxsf, r4
+
+    LDMIA   sp!, {r0-r12,lr,pc}^ @ pop new task's r0-r12,lr & pc, copy spsr to cpsr
 
