@@ -1,380 +1,279 @@
-/*
-                  Linker File for Renesas RZ/N2L FSP
-*/
+   IAR ANSI C/C++ Compiler V9.40.1.364/W64 for ARM
+   Copyright 1999-2023 IAR Systems AB.
+   Evaluation license - IAR Embedded Workbench for Arm, Evaluation Edition 9.40
 
-INCLUDE memory_regions.ld
-
-/* The memory information for each device is done in memory regions file.
- * The starting address and length of memory not defined in memory regions file are defined as 0. */
-
-ATCM_PRV_START = DEFINED(ATCM_START) ? ATCM_START : 0;
-ATCM_PRV_LENGTH = DEFINED(ATCM_LENGTH) ? ATCM_LENGTH : 0;
-BTCM_PRV_START = DEFINED(BTCM_START) ? BTCM_START : 0;
-BTCM_PRV_LENGTH = DEFINED(BTCM_LENGTH) ? BTCM_LENGTH : 0;
-SYSTEM_RAM_PRV_START = DEFINED(SYSTEM_RAM_START) ? SYSTEM_RAM_START : 0;
-SYSTEM_RAM_PRV_LENGTH = DEFINED(SYSTEM_RAM_LENGTH) ? SYSTEM_RAM_LENGTH : 0;
-SYSTEM_RAM_MIRROR_PRV_START = DEFINED(SYSTEM_RAM_MIRROR_START) ? SYSTEM_RAM_MIRROR_START : 0;
-SYSTEM_RAM_MIRROR_PRV_LENGTH = DEFINED(SYSTEM_RAM_MIRROR_LENGTH) ? SYSTEM_RAM_MIRROR_LENGTH : 0;
-xSPI0_CS0_SPACE_MIRROR_PRV_START = DEFINED(xSPI0_CS0_SPACE_MIRROR_START) ? xSPI0_CS0_SPACE_MIRROR_START : 0;
-xSPI0_CS0_SPACE_MIRROR_PRV_LENGTH = DEFINED(xSPI0_CS0_SPACE_MIRROR_LENGTH) ? xSPI0_CS0_SPACE_MIRROR_LENGTH : 0;
-xSPI0_CS1_SPACE_MIRROR_PRV_START = DEFINED(xSPI0_CS1_SPACE_MIRROR_START) ? xSPI0_CS1_SPACE_MIRROR_START : 0;
-xSPI0_CS1_SPACE_MIRROR_PRV_LENGTH = DEFINED(xSPI0_CS1_SPACE_MIRROR_LENGTH) ? xSPI0_CS1_SPACE_MIRROR_LENGTH : 0;
-xSPI1_CS0_SPACE_MIRROR_PRV_START = DEFINED(xSPI1_CS0_SPACE_MIRROR_START) ? xSPI1_CS0_SPACE_MIRROR_START : 0;
-xSPI1_CS0_SPACE_MIRROR_PRV_LENGTH = DEFINED(xSPI1_CS0_SPACE_MIRROR_LENGTH) ? xSPI1_CS0_SPACE_MIRROR_LENGTH : 0;
-xSPI1_CS1_SPACE_MIRROR_PRV_START = DEFINED(xSPI1_CS1_SPACE_MIRROR_START) ? xSPI1_CS1_SPACE_MIRROR_START : 0;
-xSPI1_CS1_SPACE_MIRROR_PRV_LENGTH = DEFINED(xSPI1_CS1_SPACE_MIRROR_LENGTH) ? xSPI1_CS1_SPACE_MIRROR_LENGTH : 0;
-CS0_SPACE_MIRROR_PRV_START = DEFINED(CS0_SPACE_MIRROR_START) ? CS0_SPACE_MIRROR_START : 0;
-CS0_SPACE_MIRROR_PRV_LENGTH = DEFINED(CS0_SPACE_MIRROR_LENGTH) ? CS0_SPACE_MIRROR_LENGTH : 0;
-CS2_SPACE_MIRROR_PRV_START = DEFINED(CS2_SPACE_MIRROR_START) ? CS2_SPACE_MIRROR_START : 0;
-CS2_SPACE_MIRROR_PRV_LENGTH = DEFINED(CS2_SPACE_MIRROR_LENGTH) ? CS2_SPACE_MIRROR_LENGTH : 0;
-CS3_SPACE_MIRROR_PRV_START = DEFINED(CS3_SPACE_MIRROR_START) ? CS3_SPACE_MIRROR_START : 0;
-CS3_SPACE_MIRROR_PRV_LENGTH = DEFINED(CS3_SPACE_MIRROR_LENGTH) ? CS3_SPACE_MIRROR_LENGTH : 0;
-CS5_SPACE_MIRROR_PRV_START = DEFINED(CS5_SPACE_MIRROR_START) ? CS5_SPACE_MIRROR_START : 0;
-CS5_SPACE_MIRROR_PRV_LENGTH = DEFINED(CS5_SPACE_MIRROR_LENGTH) ? CS5_SPACE_MIRROR_LENGTH : 0;
-xSPI0_CS0_SPACE_PRV_START = DEFINED(xSPI0_CS0_SPACE_START) ? xSPI0_CS0_SPACE_START : 0;
-xSPI0_CS0_SPACE_PRV_LENGTH = DEFINED(xSPI0_CS0_SPACE_LENGTH) ? xSPI0_CS0_SPACE_LENGTH : 0;
-xSPI0_CS1_SPACE_PRV_START = DEFINED(xSPI0_CS1_SPACE_START) ? xSPI0_CS1_SPACE_START : 0;
-xSPI0_CS1_SPACE_PRV_LENGTH = DEFINED(xSPI0_CS1_SPACE_LENGTH) ? xSPI0_CS1_SPACE_LENGTH : 0;
-xSPI1_CS0_SPACE_PRV_START = DEFINED(xSPI1_CS0_SPACE_START) ? xSPI1_CS0_SPACE_START : 0;
-xSPI1_CS0_SPACE_PRV_LENGTH = DEFINED(xSPI1_CS0_SPACE_LENGTH) ? xSPI1_CS0_SPACE_LENGTH : 0;
-xSPI1_CS1_SPACE_PRV_START = DEFINED(xSPI1_CS1_SPACE_START) ? xSPI1_CS1_SPACE_START : 0;
-xSPI1_CS1_SPACE_PRV_LENGTH = DEFINED(xSPI1_CS1_SPACE_LENGTH) ? xSPI1_CS1_SPACE_LENGTH : 0;
-CS0_SPACE_PRV_START = DEFINED(CS0_SPACE_START) ? CS0_SPACE_START : 0;
-CS0_SPACE_PRV_LENGTH = DEFINED(CS0_SPACE_LENGTH) ? CS0_SPACE_LENGTH : 0;
-CS2_SPACE_PRV_START = DEFINED(CS2_SPACE_START) ? CS2_SPACE_START : 0;
-CS2_SPACE_PRV_LENGTH = DEFINED(CS2_SPACE_LENGTH) ? CS2_SPACE_LENGTH : 0;
-CS3_SPACE_PRV_START = DEFINED(CS3_SPACE_START) ? CS3_SPACE_START : 0;
-CS3_SPACE_PRV_LENGTH = DEFINED(CS3_SPACE_LENGTH) ? CS3_SPACE_LENGTH : 0;
-CS5_SPACE_PRV_START = DEFINED(CS5_SPACE_START) ? CS5_SPACE_START : 0;
-CS5_SPACE_PRV_LENGTH = DEFINED(CS5_SPACE_LENGTH) ? CS5_SPACE_LENGTH : 0;
-
-/* Define starting addresses for DMAC link mode data, CPU-shared non-cache, and CPU-specific non-cache areas. */
-DMAC_LINK_MODE_START = DEFINED(SYSTEM_RAM_MIRROR_START) ? SYSTEM_RAM_MIRROR_START + SYSTEM_RAM_MIRROR_LENGTH - 0x00044000 : 0;
-SHARED_NONCACHE_BUFFER_START = DEFINED(SYSTEM_RAM_MIRROR_START) ? SYSTEM_RAM_MIRROR_START + SYSTEM_RAM_MIRROR_LENGTH - 0x00040000 : 0;
-NONCACHE_BUFFER_START = DEFINED(SYSTEM_RAM_MIRROR_START) ? SYSTEM_RAM_MIRROR_START + SYSTEM_RAM_MIRROR_LENGTH - 0x00020000 : 0;
-
-MEMORY
-{
-    ATCM : ORIGIN = ATCM_PRV_START, LENGTH = ATCM_PRV_LENGTH
-    BTCM : ORIGIN = BTCM_PRV_START, LENGTH = BTCM_PRV_LENGTH
-    SYSTEM_RAM : ORIGIN = SYSTEM_RAM_PRV_START, LENGTH = SYSTEM_RAM_PRV_LENGTH
-    SYSTEM_RAM_MIRROR : ORIGIN = SYSTEM_RAM_MIRROR_PRV_START, LENGTH = SYSTEM_RAM_MIRROR_PRV_LENGTH
-    xSPI0_CS0_SPACE_MIRROR : ORIGIN = xSPI0_CS0_SPACE_MIRROR_PRV_START, LENGTH = xSPI0_CS0_SPACE_MIRROR_PRV_LENGTH
-    xSPI0_CS1_SPACE_MIRROR : ORIGIN = xSPI0_CS1_SPACE_MIRROR_PRV_START, LENGTH = xSPI0_CS1_SPACE_MIRROR_PRV_LENGTH
-    xSPI1_CS0_SPACE_MIRROR : ORIGIN = xSPI1_CS0_SPACE_MIRROR_PRV_START, LENGTH = xSPI1_CS0_SPACE_MIRROR_PRV_LENGTH
-    xSPI1_CS1_SPACE_MIRROR : ORIGIN = xSPI1_CS1_SPACE_MIRROR_PRV_START, LENGTH = xSPI1_CS1_SPACE_MIRROR_PRV_LENGTH
-    CS0_SPACE_MIRROR : ORIGIN = CS0_SPACE_MIRROR_PRV_START, LENGTH = CS0_SPACE_MIRROR_PRV_LENGTH
-    CS2_SPACE_MIRROR : ORIGIN = CS2_SPACE_MIRROR_PRV_START, LENGTH = CS2_SPACE_MIRROR_PRV_LENGTH
-    CS3_SPACE_MIRROR : ORIGIN = CS3_SPACE_MIRROR_PRV_START, LENGTH = CS3_SPACE_MIRROR_PRV_LENGTH
-    CS5_SPACE_MIRROR : ORIGIN = CS5_SPACE_MIRROR_PRV_START, LENGTH = CS5_SPACE_MIRROR_PRV_LENGTH
-    xSPI0_CS0_SPACE : ORIGIN = xSPI0_CS0_SPACE_PRV_START, LENGTH = xSPI0_CS0_SPACE_PRV_LENGTH
-    xSPI0_CS1_SPACE : ORIGIN = xSPI0_CS1_SPACE_PRV_START, LENGTH = xSPI0_CS1_SPACE_PRV_LENGTH
-    xSPI1_CS0_SPACE : ORIGIN = xSPI1_CS0_SPACE_PRV_START, LENGTH = xSPI1_CS0_SPACE_PRV_LENGTH
-    xSPI1_CS1_SPACE : ORIGIN = xSPI1_CS1_SPACE_PRV_START, LENGTH = xSPI1_CS1_SPACE_PRV_LENGTH
-    CS0_SPACE : ORIGIN = CS0_SPACE_PRV_START, LENGTH = CS0_SPACE_PRV_LENGTH
-    CS2_SPACE : ORIGIN = CS2_SPACE_PRV_START, LENGTH = CS2_SPACE_PRV_LENGTH
-    CS3_SPACE : ORIGIN = CS3_SPACE_PRV_START, LENGTH = CS3_SPACE_PRV_LENGTH
-    CS5_SPACE : ORIGIN = CS5_SPACE_PRV_START, LENGTH = CS5_SPACE_PRV_LENGTH
-    DUMMY     : ORIGIN = 0x00000040, LENGTH = 0x00000004
-}
-
-SECTIONS
-{
-    .loader_param 0x60000000 : AT (0x60000000)
-    {
-        KEEP(*(.loader_param))
-    } > xSPI0_CS0_SPACE
-    .flash_contents 0x6000004C : AT (0x6000004C)
-    {
-        _mloader_text = .;
-        . = . + (_loader_text_end - _loader_text_start);
-        _mloader_data = .;
-        . = . + (_loader_data_end - _loader_data_start);
-        _mfvector = .;
-        . = . + (_fvector_end - _fvector_start);
-        _mtext = .;
-        . = . + (_text_end - _text_start);
-        _mdummy = .;
-        . = . + (_dummy_end - _dummy_start);
-        _mdata = .;
-        . = . + (_data_end - _data_start);
-        flash_contents_end = .;
-    } > xSPI0_CS0_SPACE
-    .loader_text 0x00102000 : AT (_mloader_text)
-    {
-        _loader_text_start = .;
-        *(.loader_text)
-        */fsp/src/bsp/cmsis/Device/RENESAS/Source/*.o(.text*)
-        */fsp/src/bsp/mcu/all/bsp_clocks.o(.text*)
-        */fsp/src/bsp/mcu/all/bsp_irq.o(.text*)
-        */fsp/src/bsp/mcu/all/bsp_register_protection.o(.text*)
-        */fsp/src/r_ioport/r_ioport.o(.text*)
-        KEEP(*(.warm_start))
-        . = . + (512 - ((. - _loader_text_start) % 512));
-        _loader_text_end = .;
-    } > BTCM
-    .loader_data : AT (_mloader_data)
-    {
-        _loader_data_start = .;
-        __loader_data_start = .;
-        */fsp/src/bsp/cmsis/Device/RENESAS/Source/*.o(.data*)
-        */fsp/src/bsp/mcu/all/bsp_clocks.o(.data*)
-        */fsp/src/bsp/mcu/all/bsp_irq.o(.data*)
-        */fsp/src/bsp/mcu/all/bsp_register_protection.o(.data*)
-        */fsp/src/r_ioport/r_ioport.o(.data*)
-        . = ALIGN(4);
-        __loader_data_end = .;
-        __loader_bss_start = .;
-        */fsp/src/bsp/cmsis/Device/RENESAS/Source/*.o(.bss*)
-        */fsp/src/bsp/mcu/all/bsp_clocks.o(.bss*)
-        */fsp/src/bsp/mcu/all/bsp_irq.o(.bss*)
-        */fsp/src/bsp/mcu/all/bsp_register_protection.o(.bss*)
-        */fsp/src/r_ioport/r_ioport.o(.bss*)
-        */fsp/src/bsp/cmsis/Device/RENESAS/Source/*.o(COMMON)
-        */fsp/src/bsp/mcu/all/bsp_clocks.o(COMMON)
-        */fsp/src/bsp/mcu/all/bsp_irq.o(COMMON)
-        */fsp/src/bsp/mcu/all/bsp_register_protection.o(.COMMON)
-        */fsp/src/r_ioport/r_ioport.o(.COMMON)
-        . = ALIGN(4);
-        __loader_bss_end = . ;
-        _loader_data_end = .;
-    } > BTCM
-    .intvec 0x00000000 : AT (_mfvector)
-    {
-        _fvector_start = .;
-        KEEP(*(.intvec))
-        _fvector_end = .;
-    } > ATCM
-    .text 0x00000100 : AT (_mtext)
-    {
-        _text_start = .;
-        *(.text*)
-
-        KEEP(*(.init))
-        KEEP(*(.fini))
-
-        /* section information for utest */
-        . = ALIGN(4);
-        __rt_utest_tc_tab_start = .;
-        KEEP(*(UtestTcTab))
-        __rt_utest_tc_tab_end = .;
-
-		/* section information for finsh shell */
-		. = ALIGN(4);
-		__fsymtab_start = .;
-		KEEP(*(FSymTab))
-		__fsymtab_end = .;
-		
-		. = ALIGN(4);
-		__vsymtab_start = .;
-		KEEP(*(VSymTab))
-		__vsymtab_end = .;
-		
-		/* section information for initial. */
-		. = ALIGN(4);
-		__rt_init_start = .;
-		KEEP(*(SORT(.rti_fn*)))
-		__rt_init_end = .;
-		
-		. = ALIGN(4);
-		KEEP(*(FalPartTable))
-
-        /* new GCC version uses .init_array */
-        PROVIDE(__ctors_start__ = .);
-        KEEP (*(SORT(.init_array.*)))
-        KEEP (*(.init_array))
-        PROVIDE(__ctors_end__ = .);
-
-        . = ALIGN(4);
-
-        /* .data section which is used for initialized data */
-        PROVIDE(__dtors_start__ = .);
-        KEEP(*(SORT(.dtors.*)))
-        KEEP(*(.dtors))
-        PROVIDE(__dtors_end__ = .);
-
-        . = ALIGN(4);
-
-        /* .ctors */
-        *crtbegin.o(.ctors)
-        *crtbegin?.o(.ctors)
-        *(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
-        *(SORT(.ctors.*))
-        *(.ctors)
-        _ctor_end = .;
-
-        /* .dtors */
-        *crtbegin.o(.dtors)
-        *crtbegin?.o(.dtors)
-        *(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
-        *(SORT(.dtors.*))
-        *(.dtors)
-        _dtor_end = .;
-
-        KEEP(*(.eh_frame*))
-    } > ATCM
-    .rvectors :
-    {
-        _rvectors_start = .;
-        KEEP(*(.rvectors))
-        _rvectors_end = .;
-    } > ATCM
-    .ARM.extab :
-    {
-        *(.ARM.extab* .gnu.linkonce.armextab.*)
-    } > ATCM
-    .ARM.exidx :
-    {
-        __exidx_start = .;
-        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-        __exidx_end = .;
-    } > ATCM
-    .got :
-    {
-        *(.got)
-        *(.got.plt)
-        . = ALIGN(4);
-        _text_end = .;
-    } > ATCM
-    .dummy :
-    {
-        _dummy_start = .;
-        KEEP(*(.dummy));
-        _dummy_end = .;
-    } > DUMMY
-    .data :  AT (_mdata)
-    {
-        _data_start = .;
-
-        *(vtable)
-        *(.data.*)
-        *(.data)
-
-        *(.rodata*)
-        _erodata = .;
-
-        . = ALIGN(4);
-        /* preinit data */
-        PROVIDE_HIDDEN (__preinit_array_start = .);
-        KEEP(*(.preinit_array))
-        PROVIDE_HIDDEN (__preinit_array_end = .);
-
-        . = ALIGN(4);
-        /* init data */
-        PROVIDE_HIDDEN (__init_array_start = .);
-        KEEP(*(SORT(.init_array.*)))
-        KEEP(*(.init_array))
-        PROVIDE_HIDDEN (__init_array_end = .);
-
-        . = ALIGN(4);
-        /* finit data */
-        PROVIDE_HIDDEN (__fini_array_start = .);
-        KEEP(*(SORT(.fini_array.*)))
-        KEEP(*(.fini_array))
-        PROVIDE_HIDDEN (__fini_array_end = .);
-
-        KEEP(*(.jcr*))
-
-        . = ALIGN(4);
-
-        /* All data end */
-        _data_end = .;
-    } > ATCM
-    .bss :
-    {
-        . = ALIGN(4);
-        __bss_start__ = .;
-        _bss = .;
-        *(.bss*)
-        *(COMMON)
-        . = ALIGN(4);
-        __bss_end__ = .;
-        _ebss = .;
-        _end = .;
-    } > ATCM
-    .heap (NOLOAD) :
-    {
-        . = ALIGN(8);
-        __HeapBase = .;
-        /* Place the STD heap here. */
-        KEEP(*(.heap))
-        __HeapLimit = .;
-    } > ATCM
-    .thread_stack (NOLOAD):
-    {
-        . = ALIGN(8);
-        __ThreadStackBase = .;
-        /* Place the Thread stacks here. */
-        KEEP(*(.stack*))
-        __ThreadStackLimit = .;
-    } > ATCM
-    .sys_stack (NOLOAD) :
-    {
-        . = ALIGN(8);
-        __SysStackBase = .;
-        /* Place the sys_stack here. */
-        KEEP(*(.sys_stack))
-        __SysStackLimit = .;
-    } > BTCM
-    .svc_stack (NOLOAD) :
-    {
-        . = ALIGN(8);
-        __SvcStackBase = .;
-        /* Place the svc_stack here. */
-        KEEP(*(.svc_stack))
-        __SvcStackLimit = .;
-    } > BTCM
-    .irq_stack (NOLOAD) :
-    {
-        . = ALIGN(8);
-        __IrqStackBase = .;
-        /* Place the irq_stack here. */
-        KEEP(*(.irq_stack))
-        __IrqStackLimit = .;
-    } > BTCM
-    .fiq_stack (NOLOAD) :
-    {
-        . = ALIGN(8);
-        __FiqStackBase = .;
-        /* Place the fiq_stack here. */
-        KEEP(*(.fiq_stack))
-        __FiqStackLimit = .;
-    } > BTCM
-    .und_stack (NOLOAD) :
-    {
-        . = ALIGN(8);
-        __UndStackBase = .;
-        /* Place the und_stack here. */
-        KEEP(*(.und_stack))
-        __UndStackLimit = .;
-    } > BTCM
-    .abt_stack (NOLOAD) :
-    {
-        . = ALIGN(8);
-        __AbtStackBase = .;
-        /* Place the abt_stack here. */
-        KEEP(*(.abt_stack))
-        __AbtStackLimit = .;
-    } > BTCM
-    .dmac_link_mode DMAC_LINK_MODE_START : AT (DMAC_LINK_MODE_START)
-    {
-        . = ALIGN(4);
-        _DmacLinkMode_start = .;
-        KEEP(*(.dmac_link_mode*))
-        _DmacLinkMode_end = .;
-    } > SYSTEM_RAM_MIRROR
-    .shared_noncache_buffer SHARED_NONCACHE_BUFFER_START : AT (SHARED_NONCACHE_BUFFER_START)
-    {
-        . = ALIGN(32);
-        _sncbuffer_start = .;
-        KEEP(*(.shared_noncache_buffer*))
-        _sncbuffer_end = .;
-    } > SYSTEM_RAM_MIRROR
-    .noncache_buffer NONCACHE_BUFFER_START : AT (NONCACHE_BUFFER_START)
-    {
-        . = ALIGN(32);
-        _ncbuffer_start = .;
-        KEEP(*(.noncache_buffer*))
-        _ncbuffer_end = .;
-    } > SYSTEM_RAM_MIRROR
-}
+Available command line options:
+--aapcs {std|vfp}
+                Specify calling convention.
+--aarch64       Generate code for AArch64, same as --cpu_mode A64
+--abi {lp64|ilp32}
+                Specify ABI for AArch64.
+--aeabi         Generate aeabi compliant code
+--align_sp_on_irq
+                Generate code to align SP on entry to __irq functions
+--arm           Generate code in arm mode, same as --cpu_mode arm
+--branch_protection bti+pac-ret
+                Options for banch protection
+--c++           C++
+--c89           Use C89 standard
+--cdecp cop#[-cop#[,...]]
+                Set which coprocessors (0-7) to use for CDE
+--char_is_signed
+                'Plain' char is treated as signed char
+--char_is_unsigned
+                'Plain' char is treated as unsigned char
+--cmse          Enable CMSE secure object generation
+--cpu core      Specify target core
+                Valid options are core names such as Cortex-M3
+                and architecture names such as 7M
+                Cortex-M3 is default
+--cpu_mode {arm|a|thumb|t}
+                Select default mode for functions, arm is default
+-D symbol[=value]
+                Define macro (same as #define symbol [value])
+--debug
+-r              Insert debug info in object file
+--dependencies=[i|m|n][s][l|w][b] file|directory|+
+                List file dependencies
+                   i     Include filename only (default)
+                   m     Makefile style (multiple rules)
+                   n     Makefile style (one rule)
+                   s     Don't include system file dependencies
+                   l     Use locale encoding instead of UTF-8
+                   w     Use little endian UTF-16 instead of UTF-8
+                   b     Use a Byte Order Mark in UTF-8 output
+                (+: output same as -o, only with .d extension)
+--deprecated_feature_warnings [+|-]feature,[+|-]feature,...
+                Enable (+) or disable (-) warnings about deprecated features:
+                   attribute_syntax         Warn about attribute syntax that
+                                            will change
+                   preprocessor_extensions  Warn about use of migration
+                                            preprocessor extensions
+                   segment_pragmas          Warn about use of #pragma constseg/
+                                            dataseg/memory
+--diagnostics_tables file|directory
+                Dump diagnostic message tables to file
+--diag_error tag,tag,...
+                Treat the list of tags as error diagnostics
+--diag_remark tag,tag,...
+                Treat the list of tags as remark diagnostics
+--diag_suppress tag,tag,...
+                Suppress the list of tags as diagnostics
+--diag_warning tag,tag,...
+                Treat the list of tags as warning diagnostics
+--discard_unused_publics
+                Discard unused public functions and variables
+--dlib_config name|path
+                Specify DLib library configuration
+--do_explicit_zero_opt_in_named_sections
+                Allow zero init optimization for variables in named
+                sections/segments
+-e              Enable IAR C/C++ language extensions
+--enable_hardware_workaround waid[,waid[...]]
+                Generate hardware workaround for specified problem
+--enable_restrict
+                Enable the restrict keyword
+--endian {little|l|big|b}
+                Select byte order, little-endian is default
+--enum_is_int   Force the size of all enumeration types to be at least 4 bytes
+--error_limit limit
+                Stop after this many errors (0 = no limit)
+-f file         Read command line options from file
+--f file        Read command line options from file and report dependency
+--fpu fpu       Specify target FPU coprocessor support
+                Default is none, which selects the software
+                floating-point library.
+--generate_entries_without_bounds
+                Generate functions for use from non-instrumented code
+--guard_calls   Use a guard call for a function static initialization
+--header_context
+                Adds include file context to diagnostics
+-I directory    Add #include search directory
+--ignore_uninstrumented_pointers
+                Disable checking of accesses via pointers from uninstrumented
+                functions
+-l[c|C|D|E|a|A|b|B][N][H] file|directory
+                Output list file
+                   c     C source listing
+                   C        with assembly code
+                   D        with pure assembly code
+                   E        with non-sequential assembly code
+                   a     Assembler file
+                   A        with C source
+                   b     Basic assembler file
+                   B        with C source
+                   N     Do not include diagnostics
+                   H     Include header file source lines
+--libc++        Use libc++ library
+--lock_regs registers
+                Prevent compiler from using specified registers (AARCH32:[R4-R11], AARCH64:[X9-X15, X18-X29]).
+--macro_positions_in_diagnostics
+                Use positions inside macros in diagnostics
+--make_all_definitions_weak
+                Make all variable and function definitions weak
+--max_cost_constexpr_call limit
+                Maximum cost (number of calls/number of loop iterations) when
+                evaluating a top-level constexpr call
+--max_depth_constexpr_call limit
+                Maximum depth of recursion when evaluating a top-level
+                constexpr call
+--mfc           Enable multiple file compilation
+--misrac1998[=arg,arg,...]
+                Enable MISRA-C 1998 diagnostics
+                    all       Enable all rules
+                    required  Enable all required rules
+                    i         Enable rule i
+                    i-j       Enable rule i through j
+                    ~i        Disable rule i
+                    ~i-j      Disable rule i through j
+--misrac2004[=arg,arg,...]
+                Enable MISRA-C 2004 diagnostics
+                    all       Enable all rules
+                    required  Enable all required rules
+                    X         Enable rule or chapter
+                    X-Y       Enable range
+                    ~X        Disable rule or chapter
+                    ~X-Y      Disable range
+                  where X and Y is one of:
+                    i         All rules in chapter i
+                    i.j       Rule i.j
+--misrac_verbose
+                Enable verbose MISRA C messages
+--nonportable_path_warnings
+                Enable warning for non-matching case in paths
+--no_alignment_reduction
+                Disable alignment reduction of simple thumb functions
+--no_bom        Don't use a Byte Order Mark in Unicode output
+--no_call_frame_info
+                Suppress output of call frame information
+--no_clustering Disable static clustering for static and global variables
+--no_code_motion
+                Disable code motion
+--no_const_align
+                Turn off the alignment optimization for constants
+--no_cse        Disable common sub-expression elimination
+--no_default_fp_contract
+                Set the default for #pragma STDC FP_CONTRACT to OFF
+--no_exceptions Disable C++ exception support
+--no_fragments  Do not generate section fragments
+--no_inline     Disable function inlining
+--no_literal_pool
+                Generate code that does not issue read request to .text
+--no_loop_align Disable alignment of labels in loops (Thumb2)
+--no_mem_idioms Disable idiom recognition for memcpy/memset/memclr
+--no_normalize_file_macros
+                Do not normalize paths in __FILE__ and __BASE_FILE__ macros
+--no_path_in_file_macros
+                Strip path from __FILE__ and __BASE_FILE__ macros
+--no_rtti       Disable C++ runtime type information support
+--no_rw_dynamic_init
+                Don't allow C-object to be initialized at runtime
+--no_scheduling Disable instruction scheduling
+--no_size_constraints
+                Remove limits for code expansion
+--no_static_destruction
+                Do not emit code to destroy C++ static variables
+--no_system_include
+                Do not search in the default system header directory
+--no_tbaa       Disable type based alias analysis
+--no_typedefs_in_diagnostics
+                Do not use typedefs when printing types
+--no_unaligned_access
+                Don't generate unaligned accesses
+--no_uniform_attribute_syntax
+                Use old meaning for IAR type attributes before initial type
+--no_unroll     Disable loop unrolling
+--no_var_align  Turn off the alignment optimization for variables
+--no_warnings   Disable generation of warnings
+--no_wrap_diagnostics
+                Don't wrap long lines in diagnostic messages
+-O[n|l|m|h|hs|hz]
+                Select level of optimization:
+                   n   No optimizations
+                   l   Low optimizations (default)
+                   m   Medium optimizations
+                   h   High optimizations
+                   hz  High optimizations, tuned for small code size
+                   hs  High optimizations, tuned for high speed
+                       (-O without argument) The same setting as -Oh
+--only_stdout   Use stdout only (no console output on stderr)
+--output file|path
+-o file|path    Specify object file
+--pending_instantiations limit
+                Maximum number of instantiations of a given template in
+                progress at a time (0 -> no limit)
+--predef_macros=[n] file | directory
+                Output predefined macros
+                   n     Suppress compilation
+--preinclude filename
+                Include file before normal source
+--preprocess=[c][n][s] file|directory
+                Preprocessor output
+                   c     Include comments
+                   n     Preprocess only
+                   s     Suppress #line directives
+--public_equ symbol[=value]
+                Define public assembler symbol (EQU)
+--relaxed_fp    Enable floating point optimizations that may affect the result
+--remarks       Enable generation of remarks
+--require_prototypes
+                Require prototypes for all called or public functions
+--ropi          Generate read-only position independent code
+--runtime_checking check,check,...
+                Instrument code to do runtime checks for the selected problems:
+                   bounds              Check pointer bounds
+                   bounds_no_checks    Track pointer bounds, but emit no checks
+                   div_by_zero         Check division by zero
+                   implicit_integer_conversion
+                                       Check only implicit integer conversion
+                   integer_conversion  Check any integer conversion
+                   signed_overflow     Check for signed integer overflow
+                   signed_shift        Check for overflow in signed shift
+                   switch              Check for unhandled cases in switch
+                                       statements
+                   unsigned_overflow   Check for unsigned integer overflow
+                   unsigned_shift      Check for overflow in unsigned shift
+--rwpi          Generate read-write position independent code
+--rwpi_near     Generate read-write position independent code
+--section section-name=new section-name
+                Rename section
+--section_prefix prefix
+                Use prefix for section names
+--silent        Silent operation
+--source_encoding {locale|utf8}
+                Encoding to use for source files with no BOM
+--stack_protection
+                Insert stack smash protection
+--strict        Strict C/C++ standard language rules
+--system_include_dir directory
+                Set system header directory
+--text_out encoding
+                Encoding to use for text output files
+                   utf8                UTF-8
+                   utf16le             Little-endian UTF-16
+                   utf16be             Big-endian UTF-16
+                   locale              Locale specific encoding
+--thumb         Generate code in thumb mode, same as --cpu_mode thumb
+--uniform_attribute_syntax
+                Same syntax for IAR type attributes as for const/volatile
+--use_c++_inline
+                Use C++ inline semantics in C mode
+--use_paths_as_written
+                Use paths as written in debug information
+                (normally absolute paths are used)
+--use_unix_directory_separators
+                Use forward slashes in paths in debug information
+--utf8_text_in  Non-source text input files with no BOM use UTF-8 encoding
+--vectorize     Perform autovectorization
+--version       Output version information and exit
+--vla           Allow variable length arrays
+--warnings_affect_exit_code
+                Warnings affect exit code
+--warnings_are_errors
+                All warnings are errors
+--warn_about_c_style_casts
+                Warn about uses of C-style casts in C++
+--warn_about_incomplete_constructors
+                Warn about constructors that do not initialize all members
+--warn_about_missing_field_initializers
+                Warn about fields without explicit initializers
