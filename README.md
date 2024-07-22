@@ -34,7 +34,6 @@
 
 ### `👋 Hi there`
 
-  <p>&emsp;&emsp;🔭 Now I am a senior student ...</p>
   <p>&emsp;&emsp;🌱 I’m currently learning RT-Thread、linux、ROS ...</p>
   <p>&emsp;&emsp;👯 I’m looking to collaborate on Embedded or neural network ...</p>
   <p>&emsp;&emsp;🤔 I'm looking forward to sharing my experience and learning to help some beginners get through the rookie phase faster ...</p>
