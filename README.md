@@ -43,7 +43,7 @@
 
 <div align="center">
   
-[![RT-Thread](https://github-readme-stats.vercel.app/api/pin/?username=RT-Thread&repo=rt-thread&theme=algolia&show_owner=true)](https://github.com/RT-Thread/rt-thread)[![RTduino](https://github-readme-stats.vercel.app/api/pin/?username=RTduino&repo=RTduino&theme=algolia&show_owner=true)](https://github.com/RTduino/RTduino)[![userapps](https://github-readme-stats.vercel.app/api/pin/?username=RT-Thread&repo=userapps&theme=algolia&show_owner=true)](https://github.com/RT-Thread/userapps)
+[![RT-Thread](https://github-readme-stats.vercel.app/api/pin/?username=RT-Thread&repo=rt-thread&theme=algolia&show_owner=true)](https://github.com/RT-Thread/rt-thread)[![RTduino](https://github-readme-stats.vercel.app/api/pin/?username=RTduino&repo=RTduino&theme=algolia&show_owner=true)](https://github.com/RTduino/RTduino)
 
 ### `📰 kurisaW's daily contribution`
 
