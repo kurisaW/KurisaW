@@ -40,12 +40,6 @@
   <p>&emsp;&emsp;🤔 I'm looking forward to sharing my experience and learning to help some beginners get through the rookie phase faster ...</p>
   <p>&emsp;&emsp;💬 Ask me about Linux、Embedded ...</p>
 
-### `🎟 open source repository`
-
-<div align="center">
-  
-[![RT-Thread](https://github-readme-stats.vercel.app/api/pin/?username=RT-Thread&repo=rt-thread&theme=algolia&show_owner=true)](https://github.com/RT-Thread/rt-thread)[![RTduino](https://github-readme-stats.vercel.app/api/pin/?username=RTduino&repo=RTduino&theme=algolia&show_owner=true)](https://github.com/RTduino/RTduino)
-
 ### `📰 kurisaW's daily contribution`
 
 <div align="center">
