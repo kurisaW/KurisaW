@@ -12,29 +12,76 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Check out the code
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Get PR labels
+      # Step 2: Get PR labels and determine reviewers
+      - name: Get PR labels and determine reviewers
         id: pr_labels
         run: |
-          # Get PR labels using GitHub CLI
-          LABELS=$(gh pr view ${{ github.event.pull_request.number }} --json labels --jq '.labels[].name')
+          # Extract labels from the PR event payload
+          LABELS="${{ github.event.pull_request.labels | map(attribute='name') | join(',') }}"
           echo "Labels: $LABELS"
           echo "::set-output name=labels::$LABELS"
+          
+          # Define reviewer mapping based on labels
+          declare -A label_to_reviewers
+          label_to_reviewers["BSP"]="@kurisaW"
+          label_to_reviewers["Component"]="@kurisaW @Nedki-L"
+          label_to_reviewers["action"]="@Nedki-L"
+          
+          # Dynamically select reviewers based on labels
+          SELECTED_REVIEWERS=""
+          for label in $(echo $LABELS | sed "s/,/ /g"); do
+            if [[ -n "${label_to_reviewers[$label]}" ]]; then
+              SELECTED_REVIEWERS="${SELECTED_REVIEWERS} ${label_to_reviewers[$label]}"
+            fi
+          done
+          if [ -z "$SELECTED_REVIEWERS" ]; then
+            SELECTED_REVIEWERS="No specific reviewers found"
+          fi
+          
+          echo "::set-output name=reviewers::$SELECTED_REVIEWERS"
 
-      - name: Add comment and mention reviewers for 'frontend' label
-        if: contains(steps.pr_labels.outputs.labels, 'frontend') # Check if 'frontend' label is present
+      # Step 3: Find and delete existing comment (if any)
+      - name: Delete existing comment
+        id: delete_comment
         run: |
+          # Get existing comments
+          COMMENTS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments)
+
+          # Extract comment ID (if it's an auto-comment)
+          COMMENT_ID=$(echo "$COMMENTS" | jq '.[] | select(.body | contains("Hey")) | .id' | head -n 1)
+
+          if [ -n "$COMMENT_ID" ]; then
+            echo "Deleting existing comment with ID $COMMENT_ID"
+            curl -X DELETE \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              https://api.github.com/repos/${{ github.repository }}/issues/comments/$COMMENT_ID
+          else
+            echo "No existing comment found"
+          fi
+
+      # Step 4: Add a new comment with updated reviewers
+      - name: Add comment with reviewers
+        run: |
+          REVIEWERS="${{ steps.pr_labels.outputs.reviewers }}"
+          COMMENT_BODY="Hey ${REVIEWERS}, could you please review this PR? 😊"
+          
+          # Post the comment to GitHub Issues API
           curl -X POST \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -d '{"body": "Hey @kurisaW, @Nedki-L, could you please review this PR? 😊"}' \
+            -d "{\"body\": \"$COMMENT_BODY\"}" \
             https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments
 
-      - name: Add comment and mention reviewers for 'backend' label
-        if: contains(steps.pr_labels.outputs.labels, 'backend') # Check if 'backend' label is present
+      # Step 5: Error handling (Optional) - Notify failure if curl request fails
+      - name: Check for errors
+        if: failure()
         run: |
+          echo "Error: Failed to add comment!"
           curl -X POST \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -d '{"body": "Hey @kurisaW, @Nedki-L, could you please review this PR? 😊"}' \
+            -d "{\"body\": \"Error occurred while attempting to comment on the PR.\"}" \
             https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments
