@@ -1,0 +1,40 @@
+name: Auto Comment and Mention Reviewers Based on Labels
+
+on:
+  pull_request:
+    types:
+      - labeled
+      - synchronize
+      - opened
+
+jobs:
+  auto-comment:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Get PR labels
+        id: pr_labels
+        run: |
+          # Get PR labels using GitHub CLI
+          LABELS=$(gh pr view ${{ github.event.pull_request.number }} --json labels --jq '.labels[].name')
+          echo "Labels: $LABELS"
+          echo "::set-output name=labels::$LABELS"
+
+      - name: Add comment and mention reviewers for 'frontend' label
+        if: contains(steps.pr_labels.outputs.labels, 'frontend') # Check if 'frontend' label is present
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -d '{"body": "Hey @kurisaW, @Nedki-L, could you please review this PR? 😊"}' \
+            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments
+
+      - name: Add comment and mention reviewers for 'backend' label
+        if: contains(steps.pr_labels.outputs.labels, 'backend') # Check if 'backend' label is present
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -d '{"body": "Hey @kurisaW, @Nedki-L, could you please review this PR? 😊"}' \
+            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments
