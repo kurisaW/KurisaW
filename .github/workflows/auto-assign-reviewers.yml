@@ -17,6 +17,8 @@ jobs:
 
       - name: Get PR labels
         id: pr_labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Get PR labels using GitHub CLI
           LABELS=$(gh pr view ${{ github.event.pull_request.number }} --json labels --jq '.labels[].name')
