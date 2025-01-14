@@ -40,15 +40,15 @@ jobs:
             echo $LABELS_TO_REVIEWERS | jq -r --arg label "$label" '.[$label] // empty'
           done | sort | uniq)
 
-          # 初始化空的审核者列表
+          # 遍历审核者列表，为每个审核者加上 '@' 符号
           REVIEWERS_LIST=""
-
-          # 遍历每个审核者，并为每个审核者前加上 '@'
-          for reviewer in $REQUIRED_REVIEWERS; do
-            REVIEWERS_LIST="$REVIEWERS_LIST@${reviewer}, "
+          for reviewer in $(echo "$REQUIRED_REVIEWERS" | tr '\n' ' '); do
+            if [ -n "$reviewer" ]; then
+              REVIEWERS_LIST="${REVIEWERS_LIST}@${reviewer}, "
+            fi
           done
 
-          # 删除最后一个逗号和空格
+          # 去除末尾的逗号和空格
           REVIEWERS_LIST=$(echo "$REVIEWERS_LIST" | sed 's/, $//')
 
           echo "Required reviewers: $REVIEWERS_LIST"
