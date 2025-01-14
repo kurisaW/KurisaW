@@ -49,6 +49,10 @@ jobs:
           # 给每个审核者添加 '@' 符号
           REVIEWERS_LIST=$(echo "$REVIEWERS_LIST" | sed 's/[^, ]*/@&/g')  # 每个审核者名前加 '@'
 
+          # 确保审核者列表中没有重复的 ' @' 并去除无效字符
+          REVIEWERS_LIST=$(echo "$REVIEWERS_LIST" | sed 's/@,\s*@/@/g')  # 去除多余的 '@'
+          REVIEWERS_LIST=$(echo "$REVIEWERS_LIST" | sed 's/,\s*@/ @/g')  # 修正逗号后多余的 '@'
+
           echo "Required reviewers: $REVIEWERS_LIST"
           echo "::set-output name=reviewers::${REVIEWERS_LIST}"
 
