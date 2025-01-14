@@ -16,7 +16,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      # Step 2: Get PR labels and determine reviewers
+      # Step 2: Get PR labels and set dynamic reviewers based on labels
       - name: Get PR labels and determine reviewers
         id: pr_labels
         run: |
@@ -27,9 +27,9 @@ jobs:
           
           # Define reviewer mapping based on labels
           declare -A label_to_reviewers
-          label_to_reviewers["BSP"]="@kurisaW"
-          label_to_reviewers["Component"]="@kurisaW @Nedki-L"
-          label_to_reviewers["action"]="@Nedki-L"
+          label_to_reviewers["frontend"]="@kurisaW @frontendDev1"
+          label_to_reviewers["backend"]="@Nedki-L @backendDev1"
+          label_to_reviewers["bug"]="@Nedki-L"
           
           # Dynamically select reviewers based on labels
           SELECTED_REVIEWERS=""
@@ -44,27 +44,7 @@ jobs:
           
           echo "::set-output name=reviewers::$SELECTED_REVIEWERS"
 
-      # Step 3: Find and delete existing comment (if any)
-      - name: Delete existing comment
-        id: delete_comment
-        run: |
-          # Get existing comments
-          COMMENTS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments)
-
-          # Extract comment ID (if it's an auto-comment)
-          COMMENT_ID=$(echo "$COMMENTS" | jq '.[] | select(.body | contains("Hey")) | .id' | head -n 1)
-
-          if [ -n "$COMMENT_ID" ]; then
-            echo "Deleting existing comment with ID $COMMENT_ID"
-            curl -X DELETE \
-              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              https://api.github.com/repos/${{ github.repository }}/issues/comments/$COMMENT_ID
-          else
-            echo "No existing comment found"
-          fi
-
-      # Step 4: Add a new comment with updated reviewers
+      # Step 3: Add a comment and mention reviewers based on labels
       - name: Add comment with reviewers
         run: |
           REVIEWERS="${{ steps.pr_labels.outputs.reviewers }}"
@@ -76,7 +56,7 @@ jobs:
             -d "{\"body\": \"$COMMENT_BODY\"}" \
             https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments
 
-      # Step 5: Error handling (Optional) - Notify failure if curl request fails
+      # Step 4: Error handling (Optional) - Notify failure if curl request fails
       - name: Check for errors
         if: failure()
         run: |
