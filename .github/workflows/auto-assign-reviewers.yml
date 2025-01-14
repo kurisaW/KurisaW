@@ -31,18 +31,20 @@ jobs:
         run: |
           # 定义标签和审核者的映射
           LABELS_TO_REVIEWERS='{
-            "frontend": ["kurisaW", "Nedki-L", "PeterJhon"],
-            "backend": ["kurisaW", "Nedki-L"],
-            "design": ["kurisaW"]
+            "frontend": ["＠kurisaW, ＠Nedki-L, @PeterJhon"],
+            "backend": ["@kurisaW, @Nedki-L"],
+            "design": ["@kurisaW"]
           }'
 
           # 获取PR标签并确定需要的审核者
-          REQUIRED_REVIEWERS=$(for label in $(echo "${{ env.LABELS }}" | tr " " "\n"); do
-            echo $LABELS_TO_REVIEWERS | jq -r --arg label "$label" '.[$label] // empty'
-          done | sort | uniq)
+          REQUIRED_REVIEWERS=""
+          for label in $(echo "${{ env.LABELS }}" | tr " " "\n"); do
+            REVIEWERS=$(echo $LABELS_TO_REVIEWERS | jq -r --arg label "$label" '.[$label] // empty')
+            REQUIRED_REVIEWERS="${REQUIRED_REVIEWERS} ${REVIEWERS}"
+          done
 
-          # 将审核者格式化为 '@user1 @user2 ...' 形式
-          REVIEWERS_LIST=$(echo "$REQUIRED_REVIEWERS" | tr '\n' ' ' | sed 's/ $//')
+          # 格式化审核者列表
+          REVIEWERS_LIST=$(echo "$REQUIRED_REVIEWERS" | tr ' ' '\n' | sort | uniq | tr '\n' ' ' | sed 's/ $//')
           echo "REVIEWERS_LIST=$REVIEWERS_LIST" >> $GITHUB_ENV
 
       - name: Add comment and mention reviewers
