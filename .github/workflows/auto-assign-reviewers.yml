@@ -16,18 +16,18 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      # Step 2: Get PR labels and determine reviewers
+      # Step 2: Get PR labels and set dynamic reviewers based on labels
       - name: Get PR labels and determine reviewers
         id: pr_labels
         run: |
           # Extract labels from the PR event payload
-          LABELS=$(echo "${{ github.event.pull_request.labels }}" | jq -r 'map(.name) | join(",")')
+          LABELS="${{ github.event.pull_request.labels | map(attribute='name') | join(',') }}"
           echo "Labels: $LABELS"
           echo "::set-output name=labels::$LABELS"
           
           # Define reviewer mapping based on labels
           declare -A label_to_reviewers
-          label_to_reviewers["frontend"]="@kurisaW @Nedki-L"
+          label_to_reviewers["frontend"]="@kurisaW "
           label_to_reviewers["backend"]="@Nedki-L @kurisaW"
           
           # Dynamically select reviewers based on labels
@@ -43,7 +43,7 @@ jobs:
           
           echo "::set-output name=reviewers::$SELECTED_REVIEWERS"
 
-      # Step 3: Add a comment with reviewers
+      # Step 3: Add a comment and mention reviewers based on labels
       - name: Add comment with reviewers
         run: |
           REVIEWERS="${{ steps.pr_labels.outputs.reviewers }}"
