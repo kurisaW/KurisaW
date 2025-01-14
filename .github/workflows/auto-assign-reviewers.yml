@@ -34,7 +34,6 @@ jobs:
             "frontend": "@kurisaW, @Nedki-L, @KurisaW-Collaborative",
             "backend": "@kurisaW, @Nedki-L",
             "design": "@kurisaW",
-            "action": "@kurisaW, @PeterJhon"
           }'
 
           # 获取PR标签并确定需要的审核者
