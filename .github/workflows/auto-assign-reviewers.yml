@@ -80,7 +80,7 @@ jobs:
             echo "No reviewers to mention."
           else
             # 构建评论内容，避免空格和空审核者
-            COMMENT_BODY=$(jq -n --arg reviewers "@$REVIEWERS" --arg labels "${{ env.LABELS }}" \
+            COMMENT_BODY=$(jq -n --arg reviewers "$REVIEWERS" --arg labels "${{ env.LABELS }}" \
               '{"body": "Hey \($reviewers), could you please review this PR? 😊\n\nThe following labels were applied:\n- \($labels)\n\nPlease check the changes carefully, and let us know if you need any further details. Thank you for your time!"}')
             
             # 添加评论
