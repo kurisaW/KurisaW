@@ -1,6 +1,6 @@
 {
-  "frontend": ["@kurisaW", "@Nedki-L", "@KurisaW-Collaborative"],
-  "backend": ["@kurisaW", "@Nedki-L"],
-  "design": ["@kurisaW"],
-  "documentation": ["@KurisaW-Collaborative", "@Nedki-L"]
+  "frontend": "kurisaW, Nedki-L, KurisaW-Collaborative",
+  "backend": "kurisaW, Nedki-L",
+  "design": "kurisaW",
+  "documentation": "KurisaW-Collaborative, Nedki-L"
 }
