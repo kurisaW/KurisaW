@@ -31,15 +31,15 @@ jobs:
         run: |
           # 读取仓库中的标签与审核者映射文件
           MAPPING_FILE=".github/workflows/label-reviewers.json"
-
+  
           if [ ! -f "$MAPPING_FILE" ]; then
             echo "Mapping file not found!"
             exit 1
           fi
-
-          # 读取文件并将映射存入环境变量
-          LABELS_TO_REVIEWERS=$(cat $MAPPING_FILE)
-
+  
+          # 读取文件并将映射存入环境变量。这里将整个 JSON 文件转为单行，并用 jq 进行处理。
+          LABELS_TO_REVIEWERS=$(cat $MAPPING_FILE | jq -c .)
+          
           echo "LABELS_TO_REVIEWERS=$LABELS_TO_REVIEWERS" >> $GITHUB_ENV
 
       - name: Prepare reviewer mappings
@@ -50,7 +50,9 @@ jobs:
 
           # 遍历 PR 标签，并为每个标签添加相应的审核者
           for label in $(echo "${{ env.LABELS }}" | tr " " "\n"); do
+            # 使用 jq 从 LABELS_TO_REVIEWERS 获取审核者
             REVIEWERS=$(echo ${{ env.LABELS_TO_REVIEWERS }} | jq -r --arg label "$label" '.[$label] // empty')
+
             if [ -n "$REVIEWERS" ]; then
               # 将审核者添加到 REQUIRED_REVIEWERS 数组
               for reviewer in $(echo $REVIEWERS | tr ',' '\n'); do
