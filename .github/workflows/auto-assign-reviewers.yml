@@ -67,7 +67,7 @@ jobs:
           # 使用 bash 数组去重
           UNIQUE_REVIEWERS=($(echo "${REQUIRED_REVIEWERS[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
 
-          # 格式化审核者列表，去除多余的空格
+          # 去除可能的空值并格式化审核者列表
           REVIEWERS_LIST=$(echo "${UNIQUE_REVIEWERS[@]}" | tr -s '[:space:]' ' ' | sed 's/^ //;s/ $//')
 
           echo "REVIEWERS_LIST=$REVIEWERS_LIST" >> $GITHUB_ENV
