@@ -20,7 +20,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 获取 PR 标签并确保正确格式
+          # 获取 PR 标签
           LABELS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels | jq -r '.[].name' | tr '\n' ' ')
           echo "Labels: $LABELS"
@@ -33,7 +33,7 @@ jobs:
           LABELS_TO_REVIEWERS='{
             "frontend": "@kurisaW, @Nedki-L, @KurisaW-Collaborative",
             "backend": "@kurisaW, @Nedki-L",
-            "design": "@kurisaW",
+            "design": "@kurisaW"
           }'
 
           # 获取PR标签并确定需要的审核者
@@ -46,8 +46,11 @@ jobs:
           # 格式化审核者列表，去除多余的空格和换行，并删除不必要的字符
           # 去重并去掉多余的空格和逗号
           REVIEWERS_LIST=$(echo "$REQUIRED_REVIEWERS" | tr -s '[:space:]' ' ' | sed 's/^ //;s/ $//' | tr ',' '\n' | sort -u | tr '\n' ',' | sed 's/,$//')
+          
           # 最后去除额外的空格或逗号
           REVIEWERS_LIST=$(echo "$REVIEWERS_LIST" | tr -s ' ' | sed 's/,$//')
+
+          # 输出处理后的审核者列表
           echo "REVIEWERS_LIST=$REVIEWERS_LIST" >> $GITHUB_ENV
 
       - name: Add comment and mention reviewers
