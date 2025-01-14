@@ -21,49 +21,41 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # 获取 PR 标签
-          LABELS=$(gh pr view ${{ github.event.pull_request.number }} --json labels --jq '.labels[].name')
+          LABELS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels | jq -r '.[].name')
           echo "Labels: $LABELS"
-          echo "::set-output name=labels::$LABELS"
+          echo "LABELS=$LABELS" >> $GITHUB_ENV
 
       - name: Prepare reviewer mappings
         id: reviewer-mappings
         run: |
           # 定义标签和审核者的映射
-          LABELS_TO_REVIEWERS=$(echo '{
+          LABELS_TO_REVIEWERS='{
             "frontend": ["kurisaW", "Nedki-L", "PeterJhon"],
             "backend": ["kurisaW", "Nedki-L"],
             "design": ["kurisaW"]
-          }')
+          }'
 
           # 获取PR标签并确定需要的审核者
-          REQUIRED_REVIEWERS=$(for label in $(echo "${{ steps.pr_labels.outputs.labels }}" | tr " " "\n"); do
+          REQUIRED_REVIEWERS=$(for label in $(echo "${{ env.LABELS }}" | tr " " "\n"); do
             echo $LABELS_TO_REVIEWERS | jq -r --arg label "$label" '.[$label] // empty'
           done | sort | uniq)
 
-          # 去除多余的空行
-          REVIEWERS_LIST=""
-          for reviewer in $(echo "$REQUIRED_REVIEWERS" | tr '\n' ' '); do
-            if [ -n "$reviewer" ]; then
-              REVIEWERS_LIST="${REVIEWERS_LIST}@${reviewer}, "
-            fi
-          done
-
-          # 去除末尾的逗号和空格
-          REVIEWERS_LIST=$(echo "$REVIEWERS_LIST" | sed 's/, $//')
-
-          echo "Required reviewers: $REVIEWERS_LIST"
-          echo "::set-output name=reviewers::${REVIEWERS_LIST}"
+          # 将审核者格式化为 '@user1 @user2 ...' 形式
+          REVIEWERS_LIST=$(echo "$REQUIRED_REVIEWERS" | tr '\n' ' ' | sed 's/ $//')
+          echo "REVIEWERS_LIST=$REVIEWERS_LIST" >> $GITHUB_ENV
 
       - name: Add comment and mention reviewers
         run: |
-          REVIEWERS="${{ steps.reviewer-mappings.outputs.reviewers }}"
+          REVIEWERS="${{ env.REVIEWERS_LIST }}"
           if [ -z "$REVIEWERS" ]; then
             echo "No reviewers to mention."
           else
             # 构建评论内容
-            COMMENT_BODY="Hey $REVIEWERS, could you please review this PR? 😊\n\nThe following labels were applied:\n- ${{ steps.pr_labels.outputs.labels }}\n\nPlease check the changes carefully, and let us know if you need any further details. Thank you for your time!"
+            COMMENT_BODY=$(jq -n --arg reviewers "$REVIEWERS" --arg labels "${{ env.LABELS }}" \
+              '{"body": "Hey \($reviewers), could you please review this PR? 😊\n\nThe following labels were applied:\n- \($labels)\n\nPlease check the changes carefully, and let us know if you need any further details. Thank you for your time!"}')
             curl -X POST \
               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              -d "{\"body\": \"$COMMENT_BODY\"}" \
+              -d "$COMMENT_BODY" \
               https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments
           fi
