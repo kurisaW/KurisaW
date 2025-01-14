@@ -54,10 +54,14 @@ jobs:
             # 使用 jq 从 JSON 文件中获取审核者
             REVIEWERS=$(jq -r --arg label "$label" '.[$label] // empty' labels_to_reviewers.json)
 
+            # 检查审核者是否为空
             if [ -n "$REVIEWERS" ]; then
               # 将审核者添加到 REQUIRED_REVIEWERS 数组
               for reviewer in $(echo $REVIEWERS | tr ',' '\n'); do
-                REQUIRED_REVIEWERS+=("$reviewer")
+                # 如果审核者非空，添加到数组
+                if [ -n "$reviewer" ]; then
+                  REQUIRED_REVIEWERS+=("$reviewer")
+                fi
               done
             fi
           done
