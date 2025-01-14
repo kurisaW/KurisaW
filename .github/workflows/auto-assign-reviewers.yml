@@ -12,55 +12,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the code
       - name: Check out code
         uses: actions/checkout@v2
 
-      # Step 2: Get PR labels and set dynamic reviewers based on labels
-      - name: Get PR labels and determine reviewers
+      - name: Get PR labels
         id: pr_labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Extract labels from the PR event payload
-          LABELS="${{ github.event.pull_request.labels | map(attribute='name') | join(',') }}"
+          # Get PR labels using GitHub CLI
+          LABELS=$(gh pr view ${{ github.event.pull_request.number }} --json labels --jq '.labels[].name')
           echo "Labels: $LABELS"
           echo "::set-output name=labels::$LABELS"
-          
-          # Define reviewer mapping based on labels
-          declare -A label_to_reviewers
-          label_to_reviewers["frontend"]="@kurisaW "
-          label_to_reviewers["backend"]="@Nedki-L @kurisaW"
-          
-          # Dynamically select reviewers based on labels
-          SELECTED_REVIEWERS=""
-          for label in $(echo $LABELS | sed "s/,/ /g"); do
-            if [[ -n "${label_to_reviewers[$label]}" ]]; then
-              SELECTED_REVIEWERS="${SELECTED_REVIEWERS} ${label_to_reviewers[$label]}"
-            fi
-          done
-          if [ -z "$SELECTED_REVIEWERS" ]; then
-            SELECTED_REVIEWERS="No specific reviewers found"
-          fi
-          
-          echo "::set-output name=reviewers::$SELECTED_REVIEWERS"
 
-      # Step 3: Add a comment and mention reviewers based on labels
-      - name: Add comment with reviewers
+      - name: Add comment and mention reviewers for 'frontend' label
+        if: contains(steps.pr_labels.outputs.labels, 'frontend') # Check if 'frontend' label is present
         run: |
-          REVIEWERS="${{ steps.pr_labels.outputs.reviewers }}"
-          COMMENT_BODY="Hey ${REVIEWERS}, could you please review this PR? 😊"
-          
-          # Post the comment to GitHub Issues API
           curl -X POST \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -d "{\"body\": \"$COMMENT_BODY\"}" \
+            -d '{"body": "Hey @kurisaW, @Nedki-L, could you please review this PR? 😊"}' \
             https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments
 
-      # Step 4: Error handling (Optional) - Notify failure if curl request fails
-      - name: Check for errors
-        if: failure()
+      - name: Add comment and mention reviewers for 'backend' label
+        if: contains(steps.pr_labels.outputs.labels, 'backend') # Check if 'backend' label is present
         run: |
-          echo "Error: Failed to add comment!"
           curl -X POST \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -d "{\"body\": \"Error occurred while attempting to comment on the PR.\"}" \
+            -d '{"body": "Hey @kurisaW, @Nedki-L, could you please review this PR? 😊"}' \
             https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments
