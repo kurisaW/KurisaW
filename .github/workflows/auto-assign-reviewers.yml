@@ -31,7 +31,7 @@ jobs:
         run: |
           # 定义标签和审核者的映射
           LABELS_TO_REVIEWERS='{
-            "frontend": ["＠kurisaW, ＠Nedki-L, @PeterJhon"],
+            "frontend": ["@kurisaW, @Nedki-L, @PeterJhon"],
             "backend": ["@kurisaW, @Nedki-L"],
             "design": ["@kurisaW"]
           }'
@@ -43,8 +43,8 @@ jobs:
             REQUIRED_REVIEWERS="${REQUIRED_REVIEWERS} ${REVIEWERS}"
           done
 
-          # 格式化审核者列表
-          REVIEWERS_LIST=$(echo "$REQUIRED_REVIEWERS" | tr ' ' '\n' | sort | uniq | tr '\n' ' ' | sed 's/ $//')
+          # 格式化审核者列表，去除多余的空格和换行
+          REVIEWERS_LIST=$(echo "$REQUIRED_REVIEWERS" | tr -s '[:space:]' ' ' | sed 's/^ //;s/ $//' | tr '\n' ' ')
           echo "REVIEWERS_LIST=$REVIEWERS_LIST" >> $GITHUB_ENV
 
       - name: Add comment and mention reviewers
