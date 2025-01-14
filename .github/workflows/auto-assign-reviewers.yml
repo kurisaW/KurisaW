@@ -12,55 +12,87 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the code
       - name: Check out code
         uses: actions/checkout@v2
 
-      # Step 2: Get PR labels and set dynamic reviewers based on labels
-      - name: Get PR labels and determine reviewers
+      - name: Get PR labels
         id: pr_labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Extract labels from the PR event payload
-          LABELS="${{ github.event.pull_request.labels | map(attribute='name') | join(',') }}"
+          # 获取 PR 标签
+          LABELS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels | jq -r '.[].name' | tr '\n' ' ')
           echo "Labels: $LABELS"
-          echo "::set-output name=labels::$LABELS"
-          
-          # Define reviewer mapping based on labels
-          declare -A label_to_reviewers
-          label_to_reviewers["frontend"]="@kurisaW "
-          label_to_reviewers["backend"]="@Nedki-L @kurisaW"
-          
-          # Dynamically select reviewers based on labels
-          SELECTED_REVIEWERS=""
-          for label in $(echo $LABELS | sed "s/,/ /g"); do
-            if [[ -n "${label_to_reviewers[$label]}" ]]; then
-              SELECTED_REVIEWERS="${SELECTED_REVIEWERS} ${label_to_reviewers[$label]}"
+          echo "LABELS=$LABELS" >> $GITHUB_ENV
+
+      - name: Load label-reviewers mapping from JSON file
+        id: load-mapping
+        run: |
+          # 读取仓库中的标签与审核者映射文件
+          MAPPING_FILE=".github/workflows/label-reviewers.json"
+  
+          if [ ! -f "$MAPPING_FILE" ]; then
+            echo "Mapping file not found!"
+            exit 1
+          fi
+  
+          # 使用 jq 直接从 JSON 文件中读取并获取数据
+          LABELS_TO_REVIEWERS=$(cat $MAPPING_FILE)
+
+          # 输出到文件供后续步骤使用
+          echo "$LABELS_TO_REVIEWERS" > labels_to_reviewers.json
+
+      - name: Prepare reviewer mappings
+        id: reviewer-mappings
+        run: |
+          # 获取 PR 标签并确定需要的审核者
+          REQUIRED_REVIEWERS=()
+
+          # 遍历 PR 标签，并为每个标签添加相应的审核者
+          for label in $(echo "${{ env.LABELS }}" | tr " " "\n"); do
+            # 使用 jq 从 JSON 文件中获取审核者
+            REVIEWERS=$(jq -r --arg label "$label" '.[$label] // empty' labels_to_reviewers.json)
+
+            if [ -n "$REVIEWERS" ]; then
+              # 将审核者添加到 REQUIRED_REVIEWERS 数组
+              for reviewer in $(echo $REVIEWERS | tr ',' '\n'); do
+                if [ -n "$reviewer" ]; then  # 检查是否为非空字符串
+                  REQUIRED_REVIEWERS+=("$reviewer")
+                fi
+              done
             fi
           done
-          if [ -z "$SELECTED_REVIEWERS" ]; then
-            SELECTED_REVIEWERS="No specific reviewers found"
+
+          # 使用 bash 数组去重
+          UNIQUE_REVIEWERS=($(echo "${REQUIRED_REVIEWERS[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+
+          # 格式化审核者列表，去除多余的空格
+          REVIEWERS_LIST=$(echo "${UNIQUE_REVIEWERS[@]}" | tr -s '[:space:]' ' ' | sed 's/^ //;s/ $//')
+
+          echo "REVIEWERS_LIST=$REVIEWERS_LIST" >> $GITHUB_ENV
+
+      - name: Add comment and mention reviewers
+        run: |
+          REVIEWERS="${{ env.REVIEWERS_LIST }}"
+
+          if [ -z "$REVIEWERS" ]; then
+            echo "No reviewers to mention."
+          else
+            # 构建评论内容，避免空格和空审核者
+            COMMENT_BODY=$(jq -n --arg reviewers "$REVIEWERS" --arg labels "${{ env.LABELS }}" \
+              '{"body": "Hey \($reviewers), could you please review this PR? 😊\n\nThe following labels were applied:\n- \($labels)\n\nPlease check the changes carefully, and let us know if you need any further details. Thank you for your time!"}')
+            
+            # 添加评论
+            RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/response.json -X POST \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -d "$COMMENT_BODY" \
+              https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments)
+
+            # 检查 API 调用是否成功
+            HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
+            if [ "$HTTP_STATUS" -ne 201 ]; then
+              echo "Error posting comment. Response: $RESPONSE"
+              exit 1
+            fi
           fi
-          
-          echo "::set-output name=reviewers::$SELECTED_REVIEWERS"
-
-      # Step 3: Add a comment and mention reviewers based on labels
-      - name: Add comment with reviewers
-        run: |
-          REVIEWERS="${{ steps.pr_labels.outputs.reviewers }}"
-          COMMENT_BODY="Hey ${REVIEWERS}, could you please review this PR? 😊"
-          
-          # Post the comment to GitHub Issues API
-          curl -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -d "{\"body\": \"$COMMENT_BODY\"}" \
-            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments
-
-      # Step 4: Error handling (Optional) - Notify failure if curl request fails
-      - name: Check for errors
-        if: failure()
-        run: |
-          echo "Error: Failed to add comment!"
-          curl -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -d "{\"body\": \"Error occurred while attempting to comment on the PR.\"}" \
-            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments
