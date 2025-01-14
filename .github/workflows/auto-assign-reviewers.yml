@@ -41,10 +41,11 @@ jobs:
           done | sort | uniq)
 
           # 格式化审核者列表，确保每个审核者名前有 '@'，并且审核者之间用逗号和空格分隔
-          REVIEWERS_LIST=$(echo "$REQUIRED_REVIEWERS" | tr '\n' ' ' | sed 's/^\s*//;s/\s*$//' | tr ' ' ', ' | sed 's/, $//')
+          REVIEWERS_LIST=$(echo "$REQUIRED_REVIEWERS" | tr '\n' ', ' | sed 's/^\s*//;s/\s*$//')  # 将换行符替换为逗号和空格
 
-          # 给每个审核者添加 '@' 符号，并处理多个审核者的逗号分隔
-          REVIEWERS_LIST="@$(echo $REVIEWERS_LIST | sed 's/ /, @/g')"
+          # 给每个审核者添加 '@' 符号，并移除多余的逗号或空格
+          REVIEWERS_LIST=$(echo "$REVIEWERS_LIST" | sed 's/[^,]*[^ ]*/@&/g')  # 在每个审核者前加 '@'
+          REVIEWERS_LIST=$(echo "$REVIEWERS_LIST" | sed 's/,\s*$/, /g')  # 去掉多余的结尾逗号
 
           echo "Required reviewers: $REVIEWERS_LIST"
           echo "::set-output name=reviewers::${REVIEWERS_LIST}"
