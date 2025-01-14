@@ -40,8 +40,11 @@ jobs:
             echo $LABELS_TO_REVIEWERS | jq -r --arg label "$label" '.[$label] // empty'
           done | sort | uniq)
 
-          # 格式化审核者列表，避免额外的空格
-          REVIEWERS_LIST=$(echo "$REQUIRED_REVIEWERS" | tr '\n' ', ' | sed 's/, $//')
+          # 格式化审核者列表，确保每个审核者名前有 '@'，并且审核者之间用逗号和空格分隔
+          REVIEWERS_LIST=$(echo "$REQUIRED_REVIEWERS" | tr '\n' ' ' | sed 's/^\s*//;s/\s*$//' | tr ' ' ', ' | sed 's/, $//')
+
+          # 处理单个审核者情况，确保没有多余的逗号或空格
+          REVIEWERS_LIST="@$(echo $REVIEWERS_LIST | sed 's/ /, @/g')"
 
           echo "Required reviewers: $REVIEWERS_LIST"
           echo "::set-output name=reviewers::${REVIEWERS_LIST}"
