@@ -37,9 +37,11 @@ jobs:
             exit 1
           fi
   
-          # 读取文件并将映射存入环境变量
+          # 使用 jq 直接从 JSON 文件中读取并获取数据
           LABELS_TO_REVIEWERS=$(cat $MAPPING_FILE)
-          echo "LABELS_TO_REVIEWERS=$LABELS_TO_REVIEWERS" >> $GITHUB_ENV
+
+          # 输出到文件供后续步骤使用
+          echo "$LABELS_TO_REVIEWERS" > labels_to_reviewers.json
 
       - name: Prepare reviewer mappings
         id: reviewer-mappings
@@ -49,8 +51,8 @@ jobs:
 
           # 遍历 PR 标签，并为每个标签添加相应的审核者
           for label in $(echo "${{ env.LABELS }}" | tr " " "\n"); do
-            # 使用 jq 从 LABELS_TO_REVIEWERS 获取审核者
-            REVIEWERS=$(echo "${{ env.LABELS_TO_REVIEWERS }}" | jq -r --arg label "$label" '.[$label] // empty')
+            # 使用 jq 从 JSON 文件中获取审核者
+            REVIEWERS=$(jq -r --arg label "$label" '.[$label] // empty' labels_to_reviewers.json)
 
             if [ -n "$REVIEWERS" ]; then
               # 将审核者添加到 REQUIRED_REVIEWERS 数组
