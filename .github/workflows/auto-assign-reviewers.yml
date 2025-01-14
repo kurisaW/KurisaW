@@ -31,9 +31,9 @@ jobs:
         run: |
           # 定义标签和审核者的映射
           LABELS_TO_REVIEWERS='{
-            "frontend": ["@kurisaW, @Nedki-L, @PeterJhon"],
-            "backend": ["@kurisaW, @Nedki-L"],
-            "design": ["@kurisaW"]
+            "frontend": "@kurisaW, @Nedki-L, @PeterJhon",
+            "backend": "@kurisaW, @Nedki-L",
+            "design": "@kurisaW"
           }'
 
           # 获取PR标签并确定需要的审核者
