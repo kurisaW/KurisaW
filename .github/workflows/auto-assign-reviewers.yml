@@ -44,8 +44,8 @@ jobs:
           done
 
           # 格式化审核者列表，去除多余的空格和换行，并删除不必要的字符
-          # 去重，避免重复的审核者
-          REVIEWERS_LIST=$(echo "$REQUIRED_REVIEWERS" | tr -s '[:space:]' ' ' | sed 's/^ //;s/ $//' | tr '\n' ' ' | sed 's/ $//' | tr ' ' '\n' | sort -u | tr '\n' ' ' | sed 's/ $//')
+          # 去重并去掉多余的逗号或空格
+          REVIEWERS_LIST=$(echo "$REQUIRED_REVIEWERS" | tr -s '[:space:]' ' ' | sed 's/^ //;s/ $//' | tr ',' '\n' | sort -u | tr '\n' ',' | sed 's/,$//')
           echo "REVIEWERS_LIST=$REVIEWERS_LIST" >> $GITHUB_ENV
 
       - name: Add comment and mention reviewers
