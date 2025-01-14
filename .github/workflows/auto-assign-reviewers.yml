@@ -44,13 +44,8 @@ jobs:
           done
 
           # 格式化审核者列表，去除多余的空格和换行，并删除不必要的字符
-          # 去重并去掉多余的空格和逗号
           REVIEWERS_LIST=$(echo "$REQUIRED_REVIEWERS" | tr -s '[:space:]' ' ' | sed 's/^ //;s/ $//' | tr ',' '\n' | sort -u | tr '\n' ',' | sed 's/,$//')
-          
-          # 最后去除额外的空格或逗号
           REVIEWERS_LIST=$(echo "$REVIEWERS_LIST" | tr -s ' ' | sed 's/,$//')
-
-          # 输出处理后的审核者列表
           echo "REVIEWERS_LIST=$REVIEWERS_LIST" >> $GITHUB_ENV
 
       - name: Add comment and mention reviewers
@@ -59,8 +54,11 @@ jobs:
           if [ -z "$REVIEWERS" ]; then
             echo "No reviewers to mention."
           else
+            # 去重：删除重复的 @后面的用户名
+            UNIQUE_REVIEWERS=$(echo "$REVIEWERS" | tr ',' '\n' | awk '!seen[$0]++' | tr '\n' ',' | sed 's/,$//')
+
             # 构建评论内容
-            COMMENT_BODY=$(jq -n --arg reviewers "$REVIEWERS" --arg labels "${{ env.LABELS }}" \
+            COMMENT_BODY=$(jq -n --arg reviewers "$UNIQUE_REVIEWERS" --arg labels "${{ env.LABELS }}" \
               '{"body": "Hey \($reviewers), could you please review this PR? 😊\n\nThe following labels were applied:\n- \($labels)\n\nPlease check the changes carefully, and let us know if you need any further details. Thank you for your time!"}')
             curl -X POST \
               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
