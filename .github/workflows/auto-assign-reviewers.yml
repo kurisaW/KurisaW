@@ -31,7 +31,7 @@ jobs:
         run: |
           # 定义标签和审核者的映射
           LABELS_TO_REVIEWERS='{
-            "frontend": "@kurisaW, @Nedki-L, @PeterJhon",
+            "frontend": "@kurisaW, @Nedki-L, @KurisaW-Collaborative",
             "backend": "@kurisaW, @Nedki-L",
             "design": "@kurisaW"
           }'
