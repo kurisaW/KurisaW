@@ -43,8 +43,8 @@ jobs:
             REQUIRED_REVIEWERS="${REQUIRED_REVIEWERS} ${REVIEWERS}"
           done
 
-          # 格式化审核者列表，去除多余的空格和换行
-          REVIEWERS_LIST=$(echo "$REQUIRED_REVIEWERS" | tr -s '[:space:]' ' ' | sed 's/^ //;s/ $//' | tr '\n' ' ')
+          # 格式化审核者列表，去除多余的空格和换行，并删除不必要的字符
+          REVIEWERS_LIST=$(echo "$REQUIRED_REVIEWERS" | tr -s '[:space:]' ' ' | sed 's/^ //;s/ $//' | tr '\n' ' ' | sed 's/ $//')
           echo "REVIEWERS_LIST=$REVIEWERS_LIST" >> $GITHUB_ENV
 
       - name: Add comment and mention reviewers
