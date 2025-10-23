@@ -1,0 +1,271 @@
+name: Weekly CI Scheduler
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+    inputs:
+      debug:
+        description: 'Debug mode'
+        required: false
+        default: 'false'
+
+env:
+  TARGET_WORKFLOWS: '["Snake Contrib"]'
+  DISCUSSION_CATEGORY: "CI Test Reports"
+
+jobs:
+  trigger-and-monitor:
+    name: Trigger and Monitor CIs
+    runs-on: ubuntu-latest
+    outputs:
+      failed_workflows: ${{ steps.collect-results.outputs.failed_workflows }}
+      total_workflows: ${{ steps.collect-results.outputs.total_workflows }}
+      has_results: ${{ steps.collect-results.outputs.has_results }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+
+    - name: Record start time
+      id: start-time
+      run: |
+        echo "start_time=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
+        echo "Start time: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+
+    - name: Trigger CI workflows directly
+      id: trigger-ci
+      run: |
+        python .github/scripts/trigger_workflows_direct.py
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TARGET_WORKFLOWS: ${{ env.TARGET_WORKFLOWS }}
+
+    - name: Wait for workflows to appear
+      id: wait-for-workflows
+      run: |
+        echo "Waiting for workflows to appear in API..."
+        python .github/scripts/wait_for_workflows.py "${{ steps.start-time.outputs.start_time }}"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TARGET_WORKFLOWS: ${{ env.TARGET_WORKFLOWS }}
+
+    - name: Monitor CI workflows
+      id: monitor-ci
+      run: |
+        python .github/scripts/monitor_workflows_improved.py "${{ steps.start-time.outputs.start_time }}"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TARGET_WORKFLOWS: ${{ env.TARGET_WORKFLOWS }}
+
+    - name: Collect monitoring results
+      id: collect-results
+      run: |
+        echo "Checking for monitoring results..."
+        if [ -f "monitoring_results.json" ]; then
+          echo "monitoring_results.json found"
+          FAILED_COUNT=$(python -c "import json; data=json.load(open('monitoring_results.json')); print(len([w for w in data if w.get('conclusion') == 'failure']))")
+          TOTAL_COUNT=$(python -c "import json; data=json.load(open('monitoring_results.json')); print(len(data))")
+          echo "failed_workflows=$FAILED_COUNT" >> $GITHUB_OUTPUT
+          echo "total_workflows=$TOTAL_COUNT" >> $GITHUB_OUTPUT
+          echo "has_results=true" >> $GITHUB_OUTPUT
+          echo "Results: $FAILED_COUNT failed out of $TOTAL_COUNT total"
+        else
+          echo "monitoring_results.json not found"
+          echo "failed_workflows=0" >> $GITHUB_OUTPUT
+          echo "total_workflows=0" >> $GITHUB_OUTPUT
+          echo "has_results=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Generate detailed report
+      if: steps.collect-results.outputs.has_results == 'true' && steps.collect-results.outputs.failed_workflows != '0'
+      id: generate-report
+      run: |
+        echo "Generating detailed report..."
+        python .github/scripts/generate_report.py
+        echo "Report generation completed"
+
+    - name: Upload report artifact
+      if: steps.collect-results.outputs.has_results == 'true' && steps.collect-results.outputs.failed_workflows != '0'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ci-failure-report
+        path: |
+          monitoring_results.json
+          failure_details.md
+        retention-days: 7
+
+  create-discussion:
+    name: Create Discussion Report
+    needs: trigger-and-monitor
+    if: needs.trigger-and-monitor.outputs.has_results == 'true' && needs.trigger-and-monitor.outputs.failed_workflows != '0'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Download report artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: ci-failure-report
+
+    - name: Create Discussion
+      uses: actions/github-script@v6
+      env:
+        DISCUSSION_CATEGORY: ${{ env.DISCUSSION_CATEGORY }}
+      with:
+        script: |
+          const fs = require('fs');
+          // 移除: const core = require('@actions/core');  // 已预声明，避免重复
+          
+          // 获取北京时间
+          const now = new Date();
+          const beijingTime = new Date(now.getTime() + (8 * 60 * 60 * 1000));
+          const dateString = beijingTime.toISOString().split('T')[0];
+          const timeString = beijingTime.toISOString().split('T')[1].split('.')[0];
+          
+          const discussionTitle = `CI测试报告 ${dateString} ${timeString}`;
+          
+          let discussionBody = '';
+          const reportPath = './ci-failure-report/failure_details.md';
+          
+          if (fs.existsSync(reportPath)) {
+            console.log('Found report file at:', reportPath);
+            discussionBody = fs.readFileSync(reportPath, 'utf8');
+          } else {
+            console.log('Report file not found, using fallback content');
+            discussionBody = `# CI测试报告 - ${dateString}\n\n`;
+            discussionBody += `**测试时间:** ${beijingTime.toISOString()} (UTC+8)\n\n`;
+            discussionBody += `## 执行结果\n\n`;
+            discussionBody += `检测到CI工作流执行失败。由于技术原因，详细报告未能生成。\n`;
+            discussionBody += `请检查工作流运行日志获取更多信息。\n`;
+          }
+          
+          try {
+            console.log('Creating discussion using GraphQL API...');
+            
+            // 使用 GraphQL API 创建 Discussion
+            // 首先获取仓库ID和分类ID
+            const getRepoQuery = `
+              query($owner: String!, $repo: String!) {
+                repository(owner: $owner, name: $repo) {
+                  id
+                  discussionCategories(first: 20) {
+                    nodes {
+                      id
+                      name
+                    }
+                  }
+                }
+              }
+            `;
+            
+            const repoData = await github.graphql(getRepoQuery, {
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            
+            const repositoryId = repoData.repository.id;
+            const categories = repoData.repository.discussionCategories.nodes;
+            const targetCategory = categories.find(cat => 
+              cat.name === process.env.DISCUSSION_CATEGORY
+            );
+            
+            let discussionUrl = '';
+            
+            if (!targetCategory) {
+              console.log(`Category "${process.env.DISCUSSION_CATEGORY}" not found. Available categories:`, 
+                categories.map(c => c.name));
+              // 使用第一个可用分类
+              const fallbackCategory = categories[0];
+              if (fallbackCategory) {
+                console.log(`Using fallback category: ${fallbackCategory.name}`);
+                
+                const createDiscussionMutation = `
+                  mutation($repositoryId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
+                    createDiscussion(input: {
+                      repositoryId: $repositoryId
+                      categoryId: $categoryId
+                      title: $title
+                      body: $body
+                    }) {
+                      discussion {
+                        id
+                        title
+                        url
+                      }
+                    }
+                  }
+                `;
+                
+                const result = await github.graphql(createDiscussionMutation, {
+                  repositoryId: repositoryId,
+                  categoryId: fallbackCategory.id,
+                  title: discussionTitle,
+                  body: discussionBody
+                });
+                
+                discussionUrl = result.createDiscussion.discussion.url;
+                console.log('✅ Discussion created successfully:', discussionUrl);
+              } else {
+                throw new Error('No discussion categories available');
+              }
+            } else {
+              console.log(`Using category: ${targetCategory.name}`);
+              
+              const createDiscussionMutation = `
+                mutation($repositoryId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
+                  createDiscussion(input: {
+                    repositoryId: $repositoryId
+                    categoryId: $categoryId
+                    title: $title
+                    body: $body
+                  }) {
+                    discussion {
+                      id
+                      title
+                      url
+                    }
+                  }
+                }
+              `;
+              
+              const result = await github.graphql(createDiscussionMutation, {
+                repositoryId: repositoryId,
+                categoryId: targetCategory.id,
+                title: discussionTitle,
+                body: discussionBody
+              });
+              
+              discussionUrl = result.createDiscussion.discussion.url;
+              console.log('✅ Discussion created successfully:', discussionUrl);
+            }
+            
+            core.setOutput('discussion_url', discussionUrl);
+            
+          } catch (error) {
+            console.log('❌ Failed to create discussion with GraphQL:', error.message);
+            
+            // 备用方案：创建 Issue
+            try {
+              console.log('Trying to create an issue as fallback...');
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `[CI Report] ${discussionTitle}`,
+                body: discussionBody + '\n\n*Note: This was created as an issue because discussion creation failed.*',
+                labels: ['ci-report', 'automated']
+              });
+              console.log('✅ Issue created as fallback:', issue.data.html_url);
+              core.setOutput('discussion_url', issue.data.html_url);  // 统一使用 discussion_url 输出
+            } catch (issueError) {
+              console.log('❌ All creation attempts failed:', issueError.message);
+              core.setOutput('discussion_url', '');  // 空值表示失败
+            }
+          }
