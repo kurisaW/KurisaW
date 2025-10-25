@@ -125,13 +125,23 @@ jobs:
           
           const reportPath = './failure_details.md';
           
-          const reportContent = fs.readFileSync(reportPath, 'utf8');
+          let reportContent = fs.readFileSync(reportPath, 'utf8');
           
           // 提取日期从第一行: # YYYYMMDD_ci_integration-failed-report
-          const firstLine = reportContent.split('\n')[0];
+          const lines = reportContent.split('\n');
+          const firstLine = lines[0].trim();
           const dateMatch = firstLine.match(/# (\d{8})_ci_integration-failed-report/);
+          
+          if (!dateMatch) {
+            console.error('Failed to extract date from first line:', firstLine);
+            process.exit(1);
+          }
+          
           const dateString = dateMatch[1];
           const discussionTitle = `${dateString}_ci_integration-failed-report`;
+          
+          // === 关键修复：移除第一行（用于提取的隐藏行） ===
+          reportContent = lines.slice(1).join('\n').trim();
           
           // 获取仓库ID和分类ID
           const getRepoQuery = `
@@ -157,6 +167,11 @@ jobs:
           const categories = repoData.repository.discussionCategories.nodes;
           const targetCategory = categories.find(cat => cat.name === process.env.DISCUSSION_CATEGORY);
           
+          if (!targetCategory) {
+            console.error('Category not found:', process.env.DISCUSSION_CATEGORY);
+            process.exit(1);
+          }
+          
           const createDiscussionMutation = `
             mutation($repositoryId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
               createDiscussion(input: {
@@ -178,7 +193,7 @@ jobs:
             repositoryId: repositoryId,
             categoryId: targetCategory.id,
             title: discussionTitle,
-            body: reportContent
+            body: reportContent  // 使用清理后的内容（无第一行）
           });
           
           console.log('Discussion created successfully:', result.createDiscussion.discussion.url);
