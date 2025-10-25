@@ -17,28 +17,45 @@ def load_monitoring_results() -> List[Dict[str, Any]]:
         return []
 
 def get_beijing_time() -> datetime:
-    """获取当前北京时间"""
     return datetime.utcnow() + timedelta(hours=8)
 
 def format_time(dt: datetime) -> str:
     return dt.strftime("%Y-%m-%d %H:%M")
 
+def classify_error(step_name: str, job_name: str) -> str:
+    """根据步骤名和作业名推断错误类型"""
+    step_lower = step_name.lower()
+    job_lower = job_name.lower()
+
+    if any(x in step_lower for x in ["test", "suite", "pytest", "unittest"]):
+        return "TEST_FAILURE"
+    if "lint" in step_lower or "flake8" in step_lower or "eslint" in step_lower:
+        return "LINT_ERROR"
+    if "build" in step_lower or "compile" in step_lower:
+        return "BUILD_ERROR"
+    if "deploy" in step_lower or "upload" in step_lower or "publish" in step_lower:
+        return "DEPLOY_ERROR"
+    if "check" in step_lower or "validate" in step_lower or "verify" in step_lower:
+        return "VALIDATION_ERROR"
+    if "generate" in job_lower or "render" in job_lower or "build" in job_lower:
+        return "GENERATION_ERROR"
+    return "UNKNOWN"
+
 def generate_report():
-    """生成精简、结构化的故障聚合报告"""
+    """生成符合用户指定样式的故障聚合报告"""
     results = load_monitoring_results()
     if not results:
         return
 
-    # 筛选失败的工作流
     failed_workflows = [r for r in results if r.get('conclusion') == 'failure']
     if not failed_workflows:
         print("No failed workflows to report")
         return
 
     now = get_beijing_time()
-    date_str = now.strftime("%Y%m%d")  # 用于 Discussion 标题
+    date_str = now.strftime("%Y%m%d")
 
-    # 计算时间范围（基于失败运行的创建和完成时间）
+    # 时间范围
     created_times = [
         datetime.fromisoformat(r["created_at"].replace("Z", "+00:00")) + timedelta(hours=8)
         for r in failed_workflows
@@ -55,12 +72,13 @@ def generate_report():
     success_rate = 0 if total == 0 else round((total - failed_count) / total * 100, 1)
 
     # === 第一行：用于 Discussion 标题提取 ===
-    report = f"# {date_str} GitHub Actions 故障聚合报告\n\n"
-    report += f"### 执行概览\n"
+    report = f"# {date_str}_ci_integration-failed-report\n\n"
+    report += f"# 🚨 {date_str} GitHub Actions 故障聚合报告\n\n"
+    report += f"## 🛠️ 执行概览\n"
     report += f"- **监控时间范围**: {format_time(start_time)}–{format_time(end_time)} (UTC+8)\n"
     report += f"- **检测到失败运行**: {failed_count}个\n"
     report += f"- **成功率**: {success_rate}% (本批次)\n\n"
-    report += f"### 故障详情\n"
+    report += f"## 🔍 故障详情\n"
 
     for wf in failed_workflows:
         run_id = wf.get("run_id", "N/A")
@@ -68,7 +86,7 @@ def generate_report():
         html_url = wf.get("html_url", "#")
         details = wf.get("failure_details", [])
 
-        report += f"\n**Run-{run_id}** | [{name}]({html_url})\n"
+        report += f"\n**📌 Run-{run_id}** | [{name}]({html_url})\n"
 
         if not details:
             report += "└─ 无失败作业详情\n"
@@ -78,16 +96,19 @@ def generate_report():
         for i, job in enumerate(failed_jobs):
             job_name = job["name"]
             steps = job["steps"]
-            prefix = "└─" if i == len(failed_jobs) - 1 else "├─"
-            report += f"{prefix} **失败作业**: {job_name}\n"
+            job_prefix = "└─" if i == len(failed_jobs) - 1 else "├─"
+            report += f"{job_prefix} **失败作业**: {job_name}\n"
 
             for j, step in enumerate(steps):
                 step_name = step["name"]
                 step_num = step["number"]
-                step_prefix = "   " if j < len(steps) - 1 else "   └─"
-                report += f"{step_prefix} **失败步骤**: {step_name} (Step {step_num})\n"
+                error_type = classify_error(step_name, job_name)
 
-    # === 保存报告 ===
+                step_prefix = "   └─" if j == len(steps) - 1 else "   ├─"
+                report += f"{step_prefix} **失败步骤**: {step_name} (Step {step_num})\n"
+                report += f"   {'' if j == len(steps)-1 else '│'}   **错误类型**: `{error_type}`\n"
+
+    # 保存
     try:
         with open("failure_details.md", "w", encoding="utf-8") as f:
             f.write(report.rstrip() + "\n")
