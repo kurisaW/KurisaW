@@ -69,8 +69,10 @@ def generate_report():
     failed_count = len(failed_workflows)
     success_rate = 0.0 if total == 0 else round((total - failed_count) / total * 100, 1)
 
-    # === 第一行：Discussion 标题提取 ===
+    # === 第一行：用于 JS 提取标题（必须）===
     report = f"# {date_str}_ci_integration-failed-report\n\n"
+
+    # === 第二行：用户看到的主标题（H1）===
     report += f"# 🚨 {date_str} GitHub Actions 故障聚合报告\n\n"
 
     # === 执行概览 ===
@@ -114,8 +116,7 @@ def generate_report():
     # === Team Collaboration & Support ===
     report += f"## 👥 Team Collaboration & Support\n\n"
     report += f"Call for Maintenance Support: This report requires the expertise of the RT-Thread official team for review and guidance.\n\n"
-    report += f"Requested Reviewers from RT-Thread:\n"
-    report += f"@kurisaW\n\n"
+    report += f"Requested Reviewers from RT-Thread: @kurisaW\n\n"
     report += f"Your prompt attention to this matter is greatly appreciated.\n"
 
     # 保存

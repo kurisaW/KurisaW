@@ -11,7 +11,7 @@ on:
         default: 'false'
 
 env:
-  TARGET_WORKFLOWS: '["Snake Contrib"]'
+  TARGET_WORKFLOWS: '["Snake Contrib", "Snake Contrib1"]'
   DISCUSSION_CATEGORY: "CI Test Reports"
 
 jobs:
