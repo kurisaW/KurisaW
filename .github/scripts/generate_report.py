@@ -23,13 +23,11 @@ def format_time(dt: datetime) -> str:
     return dt.strftime("%Y-%m-%d %H:%M")
 
 def classify_error(step_name: str, job_name: str) -> str:
-    """根据步骤名和作业名推断错误类型"""
+    """错误类型分类"""
     step_lower = step_name.lower()
-    job_lower = job_name.lower()
-
     if any(x in step_lower for x in ["test", "suite", "pytest", "unittest"]):
         return "TEST_FAILURE"
-    if "lint" in step_lower or "flake8" in step_lower or "eslint" in step_lower:
+    if "lint" in step_lower or "flake8" in step_lower:
         return "LINT_ERROR"
     if "build" in step_lower or "compile" in step_lower:
         return "BUILD_ERROR"
@@ -37,12 +35,12 @@ def classify_error(step_name: str, job_name: str) -> str:
         return "DEPLOY_ERROR"
     if "check" in step_lower or "validate" in step_lower or "verify" in step_lower:
         return "VALIDATION_ERROR"
-    if "generate" in job_lower or "render" in job_lower or "build" in job_lower:
+    if "generate" in step_lower or "render" in step_lower:
         return "GENERATION_ERROR"
     return "UNKNOWN"
 
 def generate_report():
-    """生成符合用户指定样式的故障聚合报告"""
+    """生成符合最新样式的故障聚合报告"""
     results = load_monitoring_results()
     if not results:
         return
@@ -69,16 +67,20 @@ def generate_report():
 
     total = len(results)
     failed_count = len(failed_workflows)
-    success_rate = 0 if total == 0 else round((total - failed_count) / total * 100, 1)
+    success_rate = 0.0 if total == 0 else round((total - failed_count) / total * 100, 1)
 
-    # === 第一行：用于 Discussion 标题提取 ===
+    # === 第一行：Discussion 标题提取 ===
     report = f"# {date_str}_ci_integration-failed-report\n\n"
     report += f"# 🚨 {date_str} GitHub Actions 故障聚合报告\n\n"
-    report += f"## 🛠️ 执行概览\n"
+
+    # === 执行概览 ===
+    report += f"## 执行概览\n"
     report += f"- **监控时间范围**: {format_time(start_time)}–{format_time(end_time)} (UTC+8)\n"
     report += f"- **检测到失败运行**: {failed_count}个\n"
     report += f"- **成功率**: {success_rate}% (本批次)\n\n"
-    report += f"## 🔍 故障详情\n"
+
+    # === 故障详情 ===
+    report += f"## 🔍 故障详情\n\n"
 
     for wf in failed_workflows:
         run_id = wf.get("run_id", "N/A")
@@ -86,10 +88,10 @@ def generate_report():
         html_url = wf.get("html_url", "#")
         details = wf.get("failure_details", [])
 
-        report += f"\n**📌 Run-{run_id}** | [{name}]({html_url})\n"
+        report += f"**📌 Run-{run_id}** | [{name}]({html_url})\n"
 
         if not details:
-            report += "└─ 无失败作业详情\n"
+            report += "└─ 无失败作业详情\n\n"
             continue
 
         failed_jobs = [j for j in details if j.get("steps")]
@@ -103,10 +105,18 @@ def generate_report():
                 step_name = step["name"]
                 step_num = step["number"]
                 error_type = classify_error(step_name, job_name)
-
                 step_prefix = "   └─" if j == len(steps) - 1 else "   ├─"
                 report += f"{step_prefix} **失败步骤**: {step_name} (Step {step_num})\n"
-                report += f"   {'' if j == len(steps)-1 else '│'}   **错误类型**: `{error_type}`\n"
+                indent = "      " if j == len(steps) - 1 else "   │   "
+                report += f"{indent}**错误类型**: `{error_type}`\n"
+        report += "\n"
+
+    # === Team Collaboration & Support ===
+    report += f"## 👥 Team Collaboration & Support\n\n"
+    report += f"Call for Maintenance Support: This report requires the expertise of the RT-Thread official team for review and guidance.\n\n"
+    report += f"Requested Reviewers from RT-Thread:\n"
+    report += f"@kurisaW\n\n"
+    report += f"Your prompt attention to this matter is greatly appreciated.\n"
 
     # 保存
     try:
