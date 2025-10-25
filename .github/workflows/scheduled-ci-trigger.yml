@@ -122,150 +122,63 @@ jobs:
       with:
         script: |
           const fs = require('fs');
-          // 移除: const core = require('@actions/core');  // 已预声明，避免重复
           
-          // 获取北京时间
-          const now = new Date();
-          const beijingTime = new Date(now.getTime() + (8 * 60 * 60 * 1000));
-          const dateString = beijingTime.toISOString().split('T')[0];
-          const timeString = beijingTime.toISOString().split('T')[1].split('.')[0];
+          const reportPath = './failure_details.md';
           
-          const discussionTitle = `CI测试报告 ${dateString} ${timeString}`;
+          const reportContent = fs.readFileSync(reportPath, 'utf8');
           
-          let discussionBody = '';
-          const reportPath = './ci-failure-report/failure_details.md';
+          // 提取日期从第一行: # YYYYMMDD_ci_integration-failed-report
+          const firstLine = reportContent.split('\n')[0];
+          const dateMatch = firstLine.match(/# (\d{8})_ci_integration-failed-report/);
+          const dateString = dateMatch[1];
+          const discussionTitle = `${dateString}_ci_integration-failed-report`;
           
-          if (fs.existsSync(reportPath)) {
-            console.log('Found report file at:', reportPath);
-            discussionBody = fs.readFileSync(reportPath, 'utf8');
-          } else {
-            console.log('Report file not found, using fallback content');
-            discussionBody = `# CI测试报告 - ${dateString}\n\n`;
-            discussionBody += `**测试时间:** ${beijingTime.toISOString()} (UTC+8)\n\n`;
-            discussionBody += `## 执行结果\n\n`;
-            discussionBody += `检测到CI工作流执行失败。由于技术原因，详细报告未能生成。\n`;
-            discussionBody += `请检查工作流运行日志获取更多信息。\n`;
-          }
+          // 获取仓库ID和分类ID
+          const getRepoQuery = `
+            query($owner: String!, $repo: String!) {
+              repository(owner: $owner, name: $repo) {
+                id
+                discussionCategories(first: 20) {
+                  nodes {
+                    id
+                    name
+                  }
+                }
+              }
+            }
+          `;
           
-          try {
-            console.log('Creating discussion using GraphQL API...');
-            
-            // 使用 GraphQL API 创建 Discussion
-            // 首先获取仓库ID和分类ID
-            const getRepoQuery = `
-              query($owner: String!, $repo: String!) {
-                repository(owner: $owner, name: $repo) {
+          const repoData = await github.graphql(getRepoQuery, {
+            owner: context.repo.owner,
+            repo: context.repo.repo
+          });
+          
+          const repositoryId = repoData.repository.id;
+          const categories = repoData.repository.discussionCategories.nodes;
+          const targetCategory = categories.find(cat => cat.name === process.env.DISCUSSION_CATEGORY);
+          
+          const createDiscussionMutation = `
+            mutation($repositoryId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
+              createDiscussion(input: {
+                repositoryId: $repositoryId
+                categoryId: $categoryId
+                title: $title
+                body: $body
+              }) {
+                discussion {
                   id
-                  discussionCategories(first: 20) {
-                    nodes {
-                      id
-                      name
-                    }
-                  }
+                  title
+                  url
                 }
               }
-            `;
-            
-            const repoData = await github.graphql(getRepoQuery, {
-              owner: context.repo.owner,
-              repo: context.repo.repo
-            });
-            
-            const repositoryId = repoData.repository.id;
-            const categories = repoData.repository.discussionCategories.nodes;
-            const targetCategory = categories.find(cat => 
-              cat.name === process.env.DISCUSSION_CATEGORY
-            );
-            
-            let discussionUrl = '';
-            
-            if (!targetCategory) {
-              console.log(`Category "${process.env.DISCUSSION_CATEGORY}" not found. Available categories:`, 
-                categories.map(c => c.name));
-              // 使用第一个可用分类
-              const fallbackCategory = categories[0];
-              if (fallbackCategory) {
-                console.log(`Using fallback category: ${fallbackCategory.name}`);
-                
-                const createDiscussionMutation = `
-                  mutation($repositoryId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
-                    createDiscussion(input: {
-                      repositoryId: $repositoryId
-                      categoryId: $categoryId
-                      title: $title
-                      body: $body
-                    }) {
-                      discussion {
-                        id
-                        title
-                        url
-                      }
-                    }
-                  }
-                `;
-                
-                const result = await github.graphql(createDiscussionMutation, {
-                  repositoryId: repositoryId,
-                  categoryId: fallbackCategory.id,
-                  title: discussionTitle,
-                  body: discussionBody
-                });
-                
-                discussionUrl = result.createDiscussion.discussion.url;
-                console.log('✅ Discussion created successfully:', discussionUrl);
-              } else {
-                throw new Error('No discussion categories available');
-              }
-            } else {
-              console.log(`Using category: ${targetCategory.name}`);
-              
-              const createDiscussionMutation = `
-                mutation($repositoryId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
-                  createDiscussion(input: {
-                    repositoryId: $repositoryId
-                    categoryId: $categoryId
-                    title: $title
-                    body: $body
-                  }) {
-                    discussion {
-                      id
-                      title
-                      url
-                    }
-                  }
-                }
-              `;
-              
-              const result = await github.graphql(createDiscussionMutation, {
-                repositoryId: repositoryId,
-                categoryId: targetCategory.id,
-                title: discussionTitle,
-                body: discussionBody
-              });
-              
-              discussionUrl = result.createDiscussion.discussion.url;
-              console.log('✅ Discussion created successfully:', discussionUrl);
             }
-            
-            core.setOutput('discussion_url', discussionUrl);
-            
-          } catch (error) {
-            console.log('❌ Failed to create discussion with GraphQL:', error.message);
-            
-            // 备用方案：创建 Issue
-            try {
-              console.log('Trying to create an issue as fallback...');
-              const issue = await github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: `[CI Report] ${discussionTitle}`,
-                body: discussionBody + '\n\n*Note: This was created as an issue because discussion creation failed.*',
-                labels: ['ci-report', 'automated']
-              });
-              console.log('✅ Issue created as fallback:', issue.data.html_url);
-              core.setOutput('discussion_url', issue.data.html_url);  // 统一使用 discussion_url 输出
-            } catch (issueError) {
-              console.log('❌ All creation attempts failed:', issueError.message);
-              core.setOutput('discussion_url', '');  // 空值表示失败
-            }
-          }
+          `;
+          
+          const result = await github.graphql(createDiscussionMutation, {
+            repositoryId: repositoryId,
+            categoryId: targetCategory.id,
+            title: discussionTitle,
+            body: reportContent
+          });
+          
+          console.log('Discussion created successfully:', result.createDiscussion.discussion.url);
