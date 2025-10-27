@@ -37,17 +37,6 @@ jobs:
             dist/profile-snake-contrib/github-contribution-grid-snake-dark.svg?palette=github-dark
         continue-on-error: false
 
-      - name: Check if snake generation succeeded
-        run: |
-          echo "❌ ERROR: Failed to generate snake contribution graph"
-          echo "Error details:"
-          echo "  - Workflow: ${{ github.workflow }}"
-          echo "  - Repository: ${{ github.repository }}"
-          echo "  - Owner: ${{ github.repository_owner }}"
-          echo "  - Triggered by: ${{ github.event_name }}"
-          echo "  - Timestamp: $(date -u)"
-          exit 1
-
       - name: push github-contribution-grid-snake.svg to the output branch
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
